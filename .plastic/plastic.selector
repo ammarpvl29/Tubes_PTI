@@ -1,0 +1,4 @@
+repository "Tubes_PTI@ammarpavel29@cloud"
+  path "/"
+    br "/main"
+    co "/main"
