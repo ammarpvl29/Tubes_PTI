@@ -2,87 +2,43 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float moveSpeed = 5f;
-    public float jumpForce = 10f;
+    [SerializeField] private float speed;
     private Rigidbody2D rb;
-    private Animator animator;
-    private bool isGrounded = false;
-    private float moveHorizontal;
+    private Vector3 originalScale;
     private bool isFacingRight = true;
 
-    void Start()
+    private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        animator = GetComponent<Animator>();
+        originalScale = transform.localScale;
     }
 
     void Update()
     {
-        // Get input
-        moveHorizontal = Input.GetAxisRaw("Horizontal");
+        float horizontalInput = Input.GetAxis("Horizontal");
+        rb.velocity = new Vector2(horizontalInput * speed, rb.velocity.y);
 
-        // Jump
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        // Check direction and flip if necessary
+        if (horizontalInput > 0 && !isFacingRight)
         {
-            Jump();
+            Flip();
+        }
+        else if (horizontalInput < 0 && isFacingRight)
+        {
+            Flip();
         }
 
-        // Update animations
-        UpdateAnimations();
-
-        // Flip character
-        FlipCharacter();
-    }
-
-    void FixedUpdate()
-    {
-        // Move character horizontally
-        rb.velocity = new Vector2(moveHorizontal * moveSpeed, rb.velocity.y);
-    }
-
-    void Jump()
-    {
-        rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
-        isGrounded = false;
-        animator.SetTrigger("Jump");
-    }
-
-    void UpdateAnimations()
-    {
-        if (animator != null)
+        if (Input.GetKey(KeyCode.Space))
         {
-            // Set the speed parameter in the animator
-            animator.SetFloat("Speed", Mathf.Abs(moveHorizontal));
-
-            // Update grounded state
-            animator.SetBool("IsGrounded", isGrounded);
+            rb.velocity = new Vector2(rb.velocity.x, speed);
         }
     }
 
-    void FlipCharacter()
+    private void Flip()
     {
-        if (moveHorizontal > 0 && !isFacingRight || moveHorizontal < 0 && isFacingRight)
-        {
-            isFacingRight = !isFacingRight;
-            Vector3 theScale = transform.localScale;
-            theScale.x *= -1;
-            transform.localScale = theScale;
-        }
-    }
-
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = true;
-        }
-    }
-
-    void OnCollisionExit2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            isGrounded = false;
-        }
+        isFacingRight = !isFacingRight;
+        Vector3 newScale = originalScale;
+        newScale.x = Mathf.Abs(newScale.x) * (isFacingRight ? 1 : -1);
+        transform.localScale = newScale;
     }
 }
