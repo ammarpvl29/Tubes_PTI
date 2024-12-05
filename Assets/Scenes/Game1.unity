@@ -11237,14 +11237,9 @@ MonoBehaviour:
   whatIsEnemies:
     serializedVersion: 2
     m_Bits: 512
-  attackRange: 0
+  attackRange: 1
   damage: 10
-  attackAnimationDuration: 0.5
-  slashEffectPrefab: {fileID: 0}
-  effectDuration: 0.3
-  effectOffset: {x: 1, y: 0}
-  slashMoveSpeed: 5
-  slashMoveDistance: 2
+  attackAnimationDuration: 0
 --- !u!114 &1661194415
 MonoBehaviour:
   m_ObjectHideFlags: 0
