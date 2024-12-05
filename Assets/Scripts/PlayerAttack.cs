@@ -1,6 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
 public class PlayerAttack : MonoBehaviour
 {
@@ -26,6 +25,8 @@ public class PlayerAttack : MonoBehaviour
     public float slashMoveSpeed = 5f;
     public float slashMoveDistance = 2f;
 
+    private static readonly int AttackHash = Animator.StringToHash("IsAttacking");
+
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -35,7 +36,7 @@ public class PlayerAttack : MonoBehaviour
     {
         if(timeBtwAttack <= 0) 
         {
-            if (Input.GetKey(KeyCode.Mouse0) && !isAttacking) 
+            if (Input.GetKeyDown(KeyCode.Mouse0) && !isAttacking) 
             {
                 StartCoroutine(PerformAttack());
             }
@@ -49,7 +50,7 @@ public class PlayerAttack : MonoBehaviour
     IEnumerator PerformAttack()
     {
         isAttacking = true;
-        animator.SetTrigger("Attack");
+        animator.SetBool(AttackHash, true);
 
         // Spawn slash effect
         SpawnSlashEffect();
@@ -58,11 +59,19 @@ public class PlayerAttack : MonoBehaviour
         Collider2D[] enemiesAttack = Physics2D.OverlapCircleAll(attackPos.position, attackRange, whatIsEnemies);
         for(int i = 0; i < enemiesAttack.Length; i++) 
         {
-            enemiesAttack[i].GetComponent<Enemy>().TakeDamage(damage);
+            if (enemiesAttack[i].TryGetComponent<Enemy>(out var enemy))
+            {
+                enemy.TakeDamage(damage);
+            }
         }
 
         timeBtwAttack = startTimeBtwAttack;
+        
+        // Wait for animation
         yield return new WaitForSeconds(attackAnimationDuration);
+        
+        // Reset attack state
+        animator.SetBool(AttackHash, false);
         isAttacking = false;
     }
 
@@ -76,8 +85,7 @@ public class PlayerAttack : MonoBehaviour
         GameObject slashEffect = Instantiate(slashEffectPrefab, effectPosition, Quaternion.identity);
         
         // Get the SlashEffect component
-        SlashEffect slashEffectScript = slashEffect.GetComponent<SlashEffect>();
-        if (slashEffectScript != null)
+        if (slashEffect.TryGetComponent<SlashEffect>(out var slashEffectScript))
         {
             // Set the customization values
             slashEffectScript.moveSpeed = slashMoveSpeed;
@@ -87,11 +95,9 @@ public class PlayerAttack : MonoBehaviour
         // Flip the effect based on player's facing direction
         if(transform.localScale.x < 0)
         {
-            slashEffect.transform.localScale = new Vector3(
-                -slashEffect.transform.localScale.x,
-                slashEffect.transform.localScale.y,
-                slashEffect.transform.localScale.z
-            );
+            Vector3 scale = slashEffect.transform.localScale;
+            scale.x *= -1;
+            slashEffect.transform.localScale = scale;
         }
 
         // Destroy the effect after duration
@@ -101,6 +107,6 @@ public class PlayerAttack : MonoBehaviour
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawSphere(attackPos.position, attackRange);
+        Gizmos.DrawWireSphere(attackPos.position, attackRange);
     }
 }
