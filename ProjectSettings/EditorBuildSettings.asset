@@ -12,6 +12,9 @@ EditorBuildSettings:
     path: Assets/Scenes/MainMenu.unity
     guid: 43fc9449f5f88a84aaeb6dc76c025b07
   - enabled: 1
+    path: Assets/Scenes/IntroDialogueScene.unity
+    guid: 1df3be91300157e42991d6e3a986371b
+  - enabled: 1
     path: Assets/Scenes/Game1.unity
     guid: 91879fe9e7f4ce744a950bb7538e9a5a
   - enabled: 1
