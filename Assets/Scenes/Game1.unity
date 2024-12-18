@@ -11232,14 +11232,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c99a912330c62349ab99379591d9895, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startTimeBtwAttack: 0
   attackPos: {fileID: 1089622773}
   whatIsEnemies:
     serializedVersion: 2
     m_Bits: 512
-  attackRange: 1
+  attackRange: 2
   damage: 10
-  attackAnimationDuration: 0
 --- !u!114 &1661194415
 MonoBehaviour:
   m_ObjectHideFlags: 0
