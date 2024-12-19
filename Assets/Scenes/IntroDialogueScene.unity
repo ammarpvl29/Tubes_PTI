@@ -8653,33 +8653,39 @@ MonoBehaviour:
         ketakutan, dan tugaskulah untuk membereskan kekacauan ini."
       speakerImage: {fileID: 21300000, guid: ef52b6a233fb40a4389ba604db4a7ba4, type: 3}
       textSound: {fileID: 0}
-      voiceClip: {fileID: 8300000, guid: 6c54f261540b61a4695ee313c1d55ef4, type: 3}
+      voiceClip: {fileID: 8300000, guid: 17ea3c09e84400d43944f390ff667826, type: 3}
     - speakerName: Demon Slime
       dialogueText: '"Manusia, beraninya kau masuk tanpa izin ke wilayahku? Apa yang
         membuatmu berpikir bisa menghentikanku?"'
       speakerImage: {fileID: 21300000, guid: 77d8861fd766ab240b0eadcfebbc6b8e, type: 3}
       textSound: {fileID: 0}
-      voiceClip: {fileID: 8300000, guid: 97ea7ee21347cae468cd05cefee1e7c1, type: 3}
+      voiceClip: {fileID: 8300000, guid: b1964eb3da758f2419df99f0cc378ae9, type: 3}
     - speakerName: Hans
       dialogueText: '"Aku di sini bukan untuk bertarung, belum sekarang. Aku ingin
         tahu mengapa kau di sini."'
       speakerImage: {fileID: 21300000, guid: ef52b6a233fb40a4389ba604db4a7ba4, type: 3}
       textSound: {fileID: 0}
-      voiceClip: {fileID: 8300000, guid: 0890b2acb571b214c850f68dd16818b6, type: 3}
+      voiceClip: {fileID: 8300000, guid: 651a700d18f1dad40bd3862ed5fe7948, type: 3}
     - speakerName: Demon Slime
       dialogueText: '"Kau, manusia. Kelalaian itu adalah dirimu. Sampah yang kau
         buang, bercampur dengan sihir yang kau abaikan, membangunkanku. Aku adalah
         hasil dari tindakanmu."'
       speakerImage: {fileID: 21300000, guid: 77d8861fd766ab240b0eadcfebbc6b8e, type: 3}
       textSound: {fileID: 0}
-      voiceClip: {fileID: 8300000, guid: 85574fbefa3583e4e83f51ee5b9e8f75, type: 3}
+      voiceClip: {fileID: 8300000, guid: 4d59b22c7fc531e4b857a18efab50aac, type: 3}
     - speakerName: Hans
       dialogueText: '"Aku tidak pernah tahu... Aku hanya ingin mendapatkan sesuatu.
         Tapi sekarang, aku melihat konsekuensi dari ketidaktahuanku. Leluhurku meninggalkanku
         alat untuk menghadapi sihir, dan sudah saatnya aku menggunakannya."'
       speakerImage: {fileID: 21300000, guid: ef52b6a233fb40a4389ba604db4a7ba4, type: 3}
       textSound: {fileID: 0}
-      voiceClip: {fileID: 8300000, guid: 2144147f8fde6e342a610b608510f6d2, type: 3}
+      voiceClip: {fileID: 8300000, guid: 55011b273c377444e8d70383d9b5dd43, type: 3}
+    - speakerName: Demon Slime
+      dialogueText: '"Sudah terlambat untuk menyesal. Kerusakan sudah terjadi. Dan
+        kau akan menjadi orang pertama yang menerima akibatnya!"'
+      speakerImage: {fileID: 21300000, guid: 77d8861fd766ab240b0eadcfebbc6b8e, type: 3}
+      textSound: {fileID: 0}
+      voiceClip: {fileID: 8300000, guid: 90991d312cc7b7d4a98bad811e105a55, type: 3}
     nextSceneName: Game1
   textSpeed: 0.03
   dialogueTransitionDelay: 1
