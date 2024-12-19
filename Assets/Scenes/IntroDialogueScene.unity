@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -420,8 +419,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -185.51}
-  m_SizeDelta: {x: 0, y: -371.03}
+  m_AnchoredPosition: {x: 0, y: -553.409}
+  m_SizeDelta: {x: 0, y: -1106.828}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &24051107
 MonoBehaviour:
@@ -2818,8 +2817,8 @@ Transform:
   m_GameObject: {fileID: 294356710}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.884403, y: -2.26, z: 0}
-  m_LocalScale: {x: 5, y: 5, z: 1}
+  m_LocalPosition: {x: -2.884403, y: -2.91, z: 0}
+  m_LocalScale: {x: 4, y: 4, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -7861,8 +7860,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -450.5706, y: -185.95}
-  m_SizeDelta: {x: 146.8587, y: 119}
+  m_AnchoredPosition: {x: -1083.0968, y: -556.6659}
+  m_SizeDelta: {x: 350.6966, y: 310.4255}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1064292485
 MonoBehaviour:
@@ -8363,8 +8362,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -182.29999, y: -136.07352}
-  m_SizeDelta: {x: 364.6, y: 19.249}
+  m_AnchoredPosition: {x: -442.47046, y: -426.5572}
+  m_SizeDelta: {x: 870.6596, y: 50.2133}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1157926623
 MonoBehaviour:
@@ -8603,8 +8602,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1206041156}
   - component: {fileID: 1206041157}
-  - component: {fileID: 1206041158}
   - component: {fileID: 1206041159}
+  - component: {fileID: 1206041160}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -8645,7 +8644,7 @@ MonoBehaviour:
   speakerImage: {fileID: 1064292485}
   backgroundImage: {fileID: 0}
   defaultTextSound: {fileID: 8300000, guid: a4198fcac64c73c4c84f6c9143276fea, type: 3}
-  typingSoundSource: {fileID: 1206041158}
+  typingSoundSource: {fileID: 1206041160}
   voiceSource: {fileID: 1206041159}
   dialogues:
   - lines:
@@ -8655,10 +8654,36 @@ MonoBehaviour:
       speakerImage: {fileID: 21300000, guid: ef52b6a233fb40a4389ba604db4a7ba4, type: 3}
       textSound: {fileID: 0}
       voiceClip: {fileID: 8300000, guid: 6c54f261540b61a4695ee313c1d55ef4, type: 3}
+    - speakerName: Demon Slime
+      dialogueText: '"Manusia, beraninya kau masuk tanpa izin ke wilayahku? Apa yang
+        membuatmu berpikir bisa menghentikanku?"'
+      speakerImage: {fileID: 21300000, guid: 77d8861fd766ab240b0eadcfebbc6b8e, type: 3}
+      textSound: {fileID: 0}
+      voiceClip: {fileID: 8300000, guid: 97ea7ee21347cae468cd05cefee1e7c1, type: 3}
+    - speakerName: Hans
+      dialogueText: '"Aku di sini bukan untuk bertarung, belum sekarang. Aku ingin
+        tahu mengapa kau di sini."'
+      speakerImage: {fileID: 21300000, guid: ef52b6a233fb40a4389ba604db4a7ba4, type: 3}
+      textSound: {fileID: 0}
+      voiceClip: {fileID: 8300000, guid: 0890b2acb571b214c850f68dd16818b6, type: 3}
+    - speakerName: Demon Slime
+      dialogueText: '"Kau, manusia. Kelalaian itu adalah dirimu. Sampah yang kau
+        buang, bercampur dengan sihir yang kau abaikan, membangunkanku. Aku adalah
+        hasil dari tindakanmu."'
+      speakerImage: {fileID: 21300000, guid: 77d8861fd766ab240b0eadcfebbc6b8e, type: 3}
+      textSound: {fileID: 0}
+      voiceClip: {fileID: 8300000, guid: 85574fbefa3583e4e83f51ee5b9e8f75, type: 3}
+    - speakerName: Hans
+      dialogueText: '"Aku tidak pernah tahu... Aku hanya ingin mendapatkan sesuatu.
+        Tapi sekarang, aku melihat konsekuensi dari ketidaktahuanku. Leluhurku meninggalkanku
+        alat untuk menghadapi sihir, dan sudah saatnya aku menggunakannya."'
+      speakerImage: {fileID: 21300000, guid: ef52b6a233fb40a4389ba604db4a7ba4, type: 3}
+      textSound: {fileID: 0}
+      voiceClip: {fileID: 8300000, guid: 2144147f8fde6e342a610b608510f6d2, type: 3}
     nextSceneName: Game1
-  textSpeed: 0.1
+  textSpeed: 0.03
   dialogueTransitionDelay: 1
---- !u!82 &1206041158
+--- !u!82 &1206041159
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8754,7 +8779,7 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!82 &1206041159
+--- !u!82 &1206041160
 AudioSource:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8765,7 +8790,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_PlayOnAwake: 0
+  m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -11606,8 +11631,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 78.78638, y: -201.41187}
-  m_SizeDelta: {x: 886.7728, y: 88.0727}
+  m_AnchoredPosition: {x: 181, y: -597}
+  m_SizeDelta: {x: 2117.6006, y: 229.748}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1823516026
 MonoBehaviour:
@@ -11664,7 +11689,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 1
   m_HorizontalAlignment: 1
-  m_VerticalAlignment: 512
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0

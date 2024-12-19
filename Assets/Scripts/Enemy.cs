@@ -2,7 +2,9 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    public int health = 100;
+    public int maxHealth = 100;
+    public int currentHealth;
+    public HealthBar healthBar;
     public GameObject bloodEffectPrefab;
     public float bloodEffectDuration = 1f;
     public int sortingOrderOffset = 1;
@@ -11,6 +13,9 @@ public class Enemy : MonoBehaviour
 
     void Start()
     {
+        currentHealth = maxHealth;
+        healthBar.SetMaxHealth(maxHealth);
+
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer == null)
         {
@@ -20,7 +25,7 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        if (health <= 0)
+        if (currentHealth <= 0)
         {
             Destroy(gameObject);
         }
@@ -28,9 +33,10 @@ public class Enemy : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
-        health -= damage;
+        currentHealth -= damage;
+        healthBar.SetHealth(currentHealth);
         SpawnBloodEffect();
-        Debug.Log("Damage Taken. Remaining Health: " + health);
+        Debug.Log("Damage Taken. Remaining Health: " + currentHealth);
     }
 
     private void SpawnBloodEffect()
@@ -39,7 +45,6 @@ public class Enemy : MonoBehaviour
         {
             GameObject bloodInstance = Instantiate(bloodEffectPrefab, transform.position, Quaternion.identity);
             ParticleSystem particleSystem = bloodInstance.GetComponent<ParticleSystem>();
-
             if (particleSystem != null)
             {
                 ParticleSystemRenderer particleRenderer = particleSystem.GetComponent<ParticleSystemRenderer>();
@@ -48,7 +53,6 @@ public class Enemy : MonoBehaviour
                     particleRenderer.sortingLayerName = spriteRenderer.sortingLayerName;
                     particleRenderer.sortingOrder = spriteRenderer.sortingOrder + sortingOrderOffset;
                 }
-
                 float duration = particleSystem.main.duration;
                 Destroy(bloodInstance, Mathf.Max(duration, bloodEffectDuration));
             }
