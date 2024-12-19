@@ -12,14 +12,15 @@ public class DialogueLine
     [TextArea(3, 10)]
     public string dialogueText;
     public Sprite speakerImage;
-    public AudioClip textSound; // Sound effect for this dialogue line
+    public AudioClip textSound;     // Sound effect for typing
+    public AudioClip voiceClip;     // Voice line for the dialogue
 }
 
 [System.Serializable]
 public class SceneDialogue
 {
     public List<DialogueLine> lines;
-    public string nextSceneName; // Scene to load after dialogue
+    public string nextSceneName;
 }
 
 [RequireComponent(typeof(AudioSource))]
@@ -30,24 +31,36 @@ public class SceneDialogueManager : MonoBehaviour
     public TextMeshProUGUI speakerNameText;
     public TextMeshProUGUI dialogueText;
     public Image speakerImage;
-    public Image backgroundImage; // Optional background for dialogue
-    public AudioClip defaultTextSound; // Fallback sound if no individual sound
+    public Image backgroundImage;
+    public AudioClip defaultTextSound;
+
+    [Header("Audio Sources")]
+    public AudioSource typingSoundSource;  // For typing sounds
+    public AudioSource voiceSource;        // For voice clips
 
     [Header("Dialogue Configuration")]
-    public List<SceneDialogue> dialogues; // List of all dialogues
+    public List<SceneDialogue> dialogues;
     public float textSpeed = 0.05f;
-    public float dialogueTransitionDelay = 1f; // Delay before scene transition
+    public float dialogueTransitionDelay = 1f;
 
-    private AudioSource audioSource;
     private Queue<DialogueLine> dialogueQueue;
     private bool isDialogueActive = false;
     private Coroutine typingCoroutine;
     private int currentDialogueIndex = 0;
-    private string nextSceneToLoad; // Store the next scene name separately
+    private string nextSceneToLoad;
 
     void Start()
     {
-        audioSource = GetComponent<AudioSource>();
+        // Setup audio sources if not assigned
+        if (typingSoundSource == null)
+        {
+            typingSoundSource = gameObject.AddComponent<AudioSource>();
+        }
+        if (voiceSource == null)
+        {
+            voiceSource = gameObject.AddComponent<AudioSource>();
+        }
+
         // Ensure dialogue panel is hidden at start
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
@@ -65,18 +78,15 @@ public class SceneDialogueManager : MonoBehaviour
 
     public void StartDialogues()
     {
-        // Validate current dialogue index
         if (currentDialogueIndex < 0 || currentDialogueIndex >= dialogues.Count)
         {
             Debug.LogError($"Invalid dialogue index: {currentDialogueIndex}. Resetting to 0.");
             currentDialogueIndex = 0;
         }
 
-        // Reset dialogue state
         dialogueQueue = new Queue<DialogueLine>();
         isDialogueActive = true;
 
-        // Validate current dialogue's lines
         SceneDialogue currentDialogue = dialogues[currentDialogueIndex];
         if (currentDialogue.lines == null || currentDialogue.lines.Count == 0)
         {
@@ -84,35 +94,31 @@ public class SceneDialogueManager : MonoBehaviour
             return;
         }
 
-        // Store the next scene name for the current dialogue set
         nextSceneToLoad = currentDialogue.nextSceneName;
 
-        // Enqueue all dialogue lines from the first dialogue individually
         foreach (DialogueLine line in currentDialogue.lines)
         {
             dialogueQueue.Enqueue(line);
         }
 
-        // Show dialogue panel
         dialoguePanel.SetActive(true);
-
-        // Start displaying the first dialogue line
         DisplayNextLine();
     }
 
     public void DisplayNextLine()
     {
-        // Check if any lines remain in the current dialogue
+        // Stop any currently playing voice clip
+        if (voiceSource.isPlaying)
+        {
+            voiceSource.Stop();
+        }
+
         if (dialogueQueue.Count == 0)
         {
-            // Move to the next dialogue, if available
             currentDialogueIndex++;
             if (currentDialogueIndex < dialogues.Count)
             {
-                // Update next scene name
                 nextSceneToLoad = dialogues[currentDialogueIndex].nextSceneName;
-
-                // Enqueue lines for the next dialogue
                 foreach (DialogueLine line in dialogues[currentDialogueIndex].lines)
                 {
                     dialogueQueue.Enqueue(line);
@@ -125,12 +131,17 @@ public class SceneDialogueManager : MonoBehaviour
             }
         }
 
-        // Get next dialogue line and display it
         DialogueLine currentLine = dialogueQueue.Dequeue();
         speakerNameText.text = currentLine.speakerName;
         speakerImage.sprite = currentLine.speakerImage;
 
-        // Start typing effect
+        // Play voice clip if available
+        if (currentLine.voiceClip != null)
+        {
+            voiceSource.clip = currentLine.voiceClip;
+            voiceSource.Play();
+        }
+
         if (typingCoroutine != null)
             StopCoroutine(typingCoroutine);
         typingCoroutine = StartCoroutine(TypeText(currentLine));
@@ -143,11 +154,11 @@ public class SceneDialogueManager : MonoBehaviour
         {
             dialogueText.text += letter;
 
-            // Play sound effect
-            AudioClip soundToPlay = currentLine.textSound ?? defaultTextSound;
-            if (soundToPlay != null)
+            // Play typing sound effect
+            if (currentLine.textSound != null || defaultTextSound != null)
             {
-                audioSource.PlayOneShot(soundToPlay, 1f);
+                AudioClip soundToPlay = currentLine.textSound ?? defaultTextSound;
+                typingSoundSource.PlayOneShot(soundToPlay, 0.5f);  // Reduced volume for typing sounds
             }
 
             yield return new WaitForSeconds(textSpeed);
@@ -156,19 +167,13 @@ public class SceneDialogueManager : MonoBehaviour
 
     IEnumerator EndDialogueAndTransition()
     {
-        // Wait a moment after last dialogue line
         yield return new WaitForSeconds(dialogueTransitionDelay);
-
-        // Hide dialogue panel
         dialoguePanel.SetActive(false);
-
-        // Load next scene
         LoadNextScene();
     }
 
     void LoadNextScene()
     {
-        // Load the next scene specified in the last dialogue configuration
         if (!string.IsNullOrEmpty(nextSceneToLoad))
         {
             SceneManager.LoadScene(nextSceneToLoad);
@@ -181,7 +186,6 @@ public class SceneDialogueManager : MonoBehaviour
 
     void Update()
     {
-        // Allow player to progress dialogue with spacebar or mouse click
         if (isDialogueActive && (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0)))
         {
             DisplayNextLine();

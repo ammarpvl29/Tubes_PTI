@@ -38,6 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -3536,8 +3537,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 1.2016}
-  m_SizeDelta: {x: 0, y: -10.1543}
+  m_AnchoredPosition: {x: 0, y: 0.0899}
+  m_SizeDelta: {x: 0, y: -8.1925}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &452992719
 MonoBehaviour:
@@ -3986,7 +3987,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 7.5, y: 8.0755}
+  m_AnchoredPosition: {x: -6.4, y: 8.6}
   m_SizeDelta: {x: 70.689, y: 60.001}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &550679766
@@ -6052,8 +6053,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1103.8, y: -671.9}
-  m_SizeDelta: {x: 160.3782, y: 20.558}
+  m_AnchoredPosition: {x: -397.04355, y: -221.52678}
+  m_SizeDelta: {x: 113.3347, y: 14.0312}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &776043887
 MonoBehaviour:
@@ -7211,12 +7212,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1089622772}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.63, y: -4.37, z: 0.7868594}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.017, y: -0.468, z: 0.7868594}
+  m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1661194413}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1089766116
 PrefabInstance:
@@ -7327,8 +7328,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 15.8, y: -0}
-  m_SizeDelta: {x: 52.8603, y: 43.85}
+  m_AnchoredPosition: {x: 6.3, y: 0.0899}
+  m_SizeDelta: {x: 31.7389, y: 26.8973}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1110921734
 MonoBehaviour:
@@ -8392,7 +8393,7 @@ Transform:
   m_GameObject: {fileID: 1255680631}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 13.444, y: -1.7020003, z: 0.10472623}
+  m_LocalPosition: {x: 14.375, y: -0.849, z: 0.10472623}
   m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10412,6 +10413,7 @@ GameObject:
   - component: {fileID: 1603358254}
   - component: {fileID: 1603358255}
   - component: {fileID: 1603358256}
+  - component: {fileID: 1603358257}
   m_Layer: 9
   m_Name: Demon_Slime
   m_TagString: Untagged
@@ -10628,6 +10630,106 @@ MonoBehaviour:
   attackMask:
     serializedVersion: 2
     m_Bits: 8
+  swordSlashSound: {fileID: 8300000, guid: 54585712ba8b80647a9c269e25f38ae1, type: 3}
+  monsterRoarSound: {fileID: 8300000, guid: 0ee999d94c9705d4ba696e9086df3f38, type: 3}
+  minRoarInterval: 3
+  maxRoarInterval: 7
+--- !u!82 &1603358257
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1603358248}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 0.8
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1603756020
 GameObject:
   m_ObjectHideFlags: 0
@@ -11262,7 +11364,8 @@ Transform:
   m_LocalPosition: {x: -2.8844035, y: -2.26, z: 0}
   m_LocalScale: {x: 5, y: 5, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1089622773}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1661194414
@@ -14518,7 +14621,6 @@ SceneRoots:
   - {fileID: 543921309}
   - {fileID: 1622726143}
   - {fileID: 1035561203}
-  - {fileID: 1089622773}
   - {fileID: 1414976498}
   - {fileID: 2127679211}
   - {fileID: 623105485}
