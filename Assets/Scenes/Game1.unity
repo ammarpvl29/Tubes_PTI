@@ -16903,7 +16903,7 @@ AudioSource:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1603358248}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
@@ -17008,7 +17008,7 @@ MonoBehaviour:
   rotationSpeed: 45
   warmupTime: 1
   attackDuration: 3
-  cooldownTime: 5
+  cooldownTime: 10
   laserWidth: 1
   laserLength: 10
   shouldRotate: 0
@@ -17925,7 +17925,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4dced0084844d6d48874c4f2e26fa9d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 100
+  maxHealth: 300
   currentHealth: 0
   healthBar: {fileID: 776043887}
   deathEffect: {fileID: 0}
@@ -22193,7 +22193,7 @@ AudioSource:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2061599885}
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
