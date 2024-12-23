@@ -3,66 +3,163 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float speed;
-    [SerializeField] private float jumpForce = 5f; // Added jumpForce variable
-    [SerializeField] private LayerMask groundLayer; // Layer for ground detection
-    [SerializeField] private float groundCheckRadius = 0.2f; // Radius for ground check circle
+    [SerializeField] private float jumpForce = 5f;
+    [SerializeField] private float rollSpeed = 8f;
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private float groundCheckRadius = 0.2f;
+
+    [SerializeField] private float rollDuration = 0.25f;
+    [SerializeField] private float rollCooldown = 0.5f;
 
     private Rigidbody2D rb;
     private Vector3 originalScale;
     private bool isFacingRight = true;
     private bool isGrounded;
-    private Transform groundCheck; // Reference to ground check point
+    private Transform groundCheck;
     private Animator animator;
+
+    private bool isRolling = false;
+    private bool canRoll = true;
+    private float rollTimeLeft;
+    private float rollCooldownTimeLeft;
+
+    // Layer variables
+    private int playerLayer;
+    private int enemyLayer;
+    private ContactFilter2D contactFilter;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         originalScale = transform.localScale;
-        animator = GetComponent<Animator>(); // Add Animator reference
+        animator = GetComponent<Animator>();
 
-        // Create and setup ground check point
         groundCheck = new GameObject("GroundCheck").transform;
         groundCheck.parent = transform;
-        groundCheck.localPosition = new Vector3(0, -0.5f, 0); // Adjust position based on your character's size
+        groundCheck.localPosition = new Vector3(0, -0.5f, 0);
+
+        // Cache layer numbers
+        playerLayer = gameObject.layer;
+        enemyLayer = LayerMask.NameToLayer("Enemy");
+
+        // Setup contact filter for potential future use
+        contactFilter = new ContactFilter2D();
+        contactFilter.useTriggers = false;
+        contactFilter.useLayerMask = true;
+        contactFilter.layerMask = LayerMask.GetMask("Enemy");
     }
 
     void Update()
     {
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
-        float horizontalInput = Input.GetAxis("Horizontal");
-
-        animator.SetFloat("Speed", Mathf.Abs(horizontalInput));
         animator.SetBool("IsGrounded", isGrounded);
 
-        rb.velocity = new Vector2(horizontalInput * speed, rb.velocity.y);
+        if (!canRoll)
+        {
+            rollCooldownTimeLeft -= Time.deltaTime;
+            if (rollCooldownTimeLeft <= 0)
+            {
+                canRoll = true;
+            }
+        }
 
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        if (Input.GetKeyDown(KeyCode.LeftShift) && isGrounded && canRoll && !isRolling
+            && !animator.GetBool("IsAttacking") && !animator.GetCurrentAnimatorStateInfo(0).IsName("Player_Powering"))
+        {
+            StartRoll();
+        }
+
+        if (isRolling)
+        {
+            UpdateRoll();
+        }
+        else
+        {
+            HandleNormalMovement();
+        }
+    }
+
+    private void HandleNormalMovement()
+    {
+        float horizontalInput = Input.GetAxis("Horizontal");
+        animator.SetFloat("Speed", Mathf.Abs(horizontalInput));
+
+        if (!animator.GetBool("IsAttacking"))
+        {
+            rb.velocity = new Vector2(horizontalInput * speed, rb.velocity.y);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded && !animator.GetBool("IsAttacking"))
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
             animator.SetTrigger("Jump");
-            Debug.Log("Jump Triggered");
         }
 
-        // Check direction and flip if necessary
-        if (horizontalInput > 0 && !isFacingRight)
+        if (!animator.GetBool("IsAttacking"))
         {
-            Flip();
+            if (horizontalInput > 0 && !isFacingRight)
+            {
+                Flip();
+            }
+            else if (horizontalInput < 0 && isFacingRight)
+            {
+                Flip();
+            }
         }
-        else if (horizontalInput < 0 && isFacingRight)
+    }
+
+    private void StartRoll()
+    {
+        isRolling = true;
+        canRoll = false;
+        rollTimeLeft = rollDuration;
+        rollCooldownTimeLeft = rollCooldown;
+
+        animator.SetBool("IsAttacking", false);
+        animator.ResetTrigger("TriggerCharge");
+        animator.SetInteger("AttackType", 0);
+
+        animator.SetTrigger("Roll");
+
+        float rollDirection = isFacingRight ? 1 : -1;
+        rb.velocity = new Vector2(rollDirection * rollSpeed, rb.velocity.y);
+
+        // Ignore collisions with enemies during roll
+        Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, true);
+    }
+
+    private void UpdateRoll()
+    {
+        rollTimeLeft -= Time.deltaTime;
+
+        float rollDirection = isFacingRight ? 1 : -1;
+        rb.velocity = new Vector2(rollDirection * rollSpeed, rb.velocity.y);
+
+        if (rollTimeLeft <= 0)
         {
-            Flip();
+            EndRoll();
         }
+    }
+
+    private void EndRoll()
+    {
+        isRolling = false;
+        rb.velocity = new Vector2(rb.velocity.x * 0.5f, rb.velocity.y);
+
+        // Re-enable collisions with enemies
+        Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
     }
 
     private void Flip()
     {
+        if (isRolling) return;
+
         isFacingRight = !isFacingRight;
         Vector3 newScale = originalScale;
         newScale.x = Mathf.Abs(newScale.x) * (isFacingRight ? 1 : -1);
         transform.localScale = newScale;
     }
 
-    // Optional: Visualize the ground check radius in the editor
     private void OnDrawGizmosSelected()
     {
         if (groundCheck != null)
@@ -70,5 +167,12 @@ public class PlayerMovement : MonoBehaviour
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
         }
+    }
+
+    // Optional: Handle cases where roll is interrupted
+    private void OnDisable()
+    {
+        // Make sure collisions are re-enabled if the script is disabled
+        Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
     }
 }

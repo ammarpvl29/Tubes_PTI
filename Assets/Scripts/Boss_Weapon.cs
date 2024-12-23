@@ -14,30 +14,35 @@ public class Boss_Weapon : MonoBehaviour
     private AudioSource audioSource;
     public AudioClip swordSlashSound;
     public AudioClip monsterRoarSound;
+    public AudioClip laserChargeSound;  // Add this for laser attack
 
     // Roar timing variables
-    public float minRoarInterval = 3f;    // Minimum time between roars
-    public float maxRoarInterval = 7f;   // Maximum time between roars
+    public float minRoarInterval = 3f;
+    public float maxRoarInterval = 7f;
     private float nextRoarTime;
+
+    private SlimeLaserAttack laserAttack;
+    private Animator animator;
+    private bool isLaserAttacking = false;
+    private Enemy enemyComponent;
 
     void Start()
     {
-        // Get the AudioSource component
         audioSource = GetComponent<AudioSource>();
-        
-        // If there's no AudioSource, add one
+
         if (audioSource == null)
         {
             audioSource = gameObject.AddComponent<AudioSource>();
         }
 
-        // Set initial roar time
         SetNextRoarTime();
+        laserAttack = GetComponent<SlimeLaserAttack>();
+        animator = GetComponent<Animator>();
+        enemyComponent = GetComponent<Enemy>();
     }
 
     void Update()
     {
-        // Check if it's time to roar
         if (Time.time >= nextRoarTime)
         {
             PlayRoarSound();
@@ -47,7 +52,6 @@ public class Boss_Weapon : MonoBehaviour
 
     private void SetNextRoarTime()
     {
-        // Set the next roar time to a random value between minRoarInterval and maxRoarInterval
         nextRoarTime = Time.time + Random.Range(minRoarInterval, maxRoarInterval);
     }
 
@@ -61,7 +65,6 @@ public class Boss_Weapon : MonoBehaviour
 
     public void Attack()
     {
-        // Play the slash sound
         if (audioSource != null && swordSlashSound != null)
         {
             audioSource.PlayOneShot(swordSlashSound);
@@ -78,9 +81,62 @@ public class Boss_Weapon : MonoBehaviour
         }
     }
 
+    public void FireLaser()
+    {
+        if (laserAttack != null && !isLaserAttacking)
+        {
+            StartCoroutine(LaserAttackSequence());
+        }
+    }
+
+    private IEnumerator LaserAttackSequence()
+    {
+        if (isLaserAttacking) yield break;
+
+        isLaserAttacking = true;
+
+        // Set the bool parameter to prevent other animations
+        animator.SetBool("isLaserCharging", true);
+        animator.SetTrigger("LaserAttack");
+
+        // Notify Enemy component about laser state
+        if (enemyComponent != null)
+        {
+            enemyComponent.SetLaserState(true);
+        }
+
+        // Play laser charge sound if available
+        if (audioSource != null && laserChargeSound != null)
+        {
+            audioSource.PlayOneShot(laserChargeSound);
+        }
+
+        // Wait for animation to reach firing point
+        yield return new WaitForSeconds(1f);
+
+        // Start the actual laser attack
+        if (laserAttack != null)
+        {
+            laserAttack.StartLaserAttack();
+
+            // Wait for the full duration of the laser attack
+            yield return new WaitForSeconds(laserAttack.attackDuration);
+
+            // Wait for cooldown
+            yield return new WaitForSeconds(laserAttack.cooldownTime);
+        }
+
+        // Reset states
+        animator.SetBool("isLaserCharging", false);
+        isLaserAttacking = false;
+        if (enemyComponent != null)
+        {
+            enemyComponent.SetLaserState(false);
+        }
+    }
+
     public void EnragedAttack()
     {
-        // Play the slash sound (you might want a different sound for enraged attacks)
         if (audioSource != null && swordSlashSound != null)
         {
             audioSource.PlayOneShot(swordSlashSound);
@@ -102,6 +158,7 @@ public class Boss_Weapon : MonoBehaviour
         Vector3 pos = transform.position;
         pos += transform.right * attackOffset.x;
         pos += transform.up * attackOffset.y;
+
         Gizmos.DrawWireSphere(pos, attackRange);
     }
 }

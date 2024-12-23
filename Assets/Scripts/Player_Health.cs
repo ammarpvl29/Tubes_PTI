@@ -1,23 +1,24 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class Player_Health : MonoBehaviour
 {
-    public int maxHealth = 100;
-    public int currentHealth;
+    public float maxHealth = 100f;
+    public float currentHealth;
     public HealthBar healthBar;
     public GameObject deathEffect;
 
     void Start()
     {
         currentHealth = maxHealth;
-        healthBar.SetMaxHealth(maxHealth);
+        healthBar.SetMaxHealth((int)maxHealth); // Convert to int for the health bar
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(float damage)
     {
         currentHealth -= damage;
-        healthBar.SetHealth(currentHealth);
+        healthBar.SetHealth((int)currentHealth); // Convert to int for the health bar
         StartCoroutine(DamageAnimation());
 
         if (currentHealth <= 0)
@@ -34,6 +35,7 @@ public class Player_Health : MonoBehaviour
     System.Collections.IEnumerator DamageAnimation()
     {
         SpriteRenderer[] srs = GetComponentsInChildren<SpriteRenderer>();
+
         for (int i = 0; i < 3; i++)
         {
             foreach (SpriteRenderer sr in srs)
@@ -43,6 +45,7 @@ public class Player_Health : MonoBehaviour
                 sr.color = c;
             }
             yield return new WaitForSeconds(.1f);
+
             foreach (SpriteRenderer sr in srs)
             {
                 Color c = sr.color;

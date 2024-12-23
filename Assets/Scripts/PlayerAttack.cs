@@ -17,14 +17,13 @@ public class PlayerAttack : MonoBehaviour
     public AudioClip hollowPurpleFireSound;    // New sound for firing
 
     [Header("Hollow Purple Settings")]
-    public ParticleSystem blueSphereEffect;    // Positive energy sphere
-    public ParticleSystem redSphereEffect;     // Negative energy sphere
-    public ParticleSystem purpleSphereEffect;  // Combined sphere
-    public ParticleSystem purpleBeamEffect;    // The final beam
+    [SerializeField] private GameObject blueSpherePrefab;    // Reference to blue sphere prefab
+    [SerializeField] private GameObject redSpherePrefab;     // Reference to red sphere prefab
+    [SerializeField] private GameObject purpleSpherePrefab;  // Reference to purple sphere prefab
     public float chargeTime = 1f;              // Time to form each sphere
     public float combineTime = 0.5f;           // Time to combine spheres
-    public float beamDuration = 1.5f;          // How long the beam lasts
-    public float beamRange = 10f;              // How far the beam reaches
+    public float shootSpeed = 20f;             // New: Speed of the purple orb
+    public float maxShootDistance = 10f;       // New: Maximum distance the orb can travel
     public float beamRadius = 2f;              // Beam width
     public int hollowPurpleDamage = 50;        // Damage for Hollow Purple
 
@@ -33,9 +32,15 @@ public class PlayerAttack : MonoBehaviour
     public Transform rightSpherePosition;       // Position for blue sphere
     public Transform combinePosition;           // Position where spheres combine
 
-    private bool isChargingHollowPurple = false;
-    private bool isFullyCharged = false;  // New variable to track charge state
+    // Instance references
+    private GameObject blueSphereInstance;
+    private GameObject redSphereInstance;
+    private GameObject purpleSphereInstance;
 
+    // State variables
+    private bool isChargingHollowPurple = false;
+    private bool isFullyCharged = false;
+    private bool isPlayingChargingAnimation = false;
     private AudioSource audioSource;
     private Animator animator;
     private bool isAttacking = false;
@@ -43,6 +48,7 @@ public class PlayerAttack : MonoBehaviour
     // Animation Hash IDs
     private static readonly int IsAttackingHash = Animator.StringToHash("IsAttacking");
     private static readonly int AttackTypeHash = Animator.StringToHash("AttackType");
+    private static readonly int TriggerChargeHash = Animator.StringToHash("TriggerCharge");
 
     void Start()
     {
@@ -55,41 +61,57 @@ public class PlayerAttack : MonoBehaviour
             audioSource.volume = 0.5f;
         }
 
-        // Initially disable all particle systems
-        if (blueSphereEffect) blueSphereEffect.Stop();
-        if (redSphereEffect) redSphereEffect.Stop();
-        if (purpleSphereEffect) purpleSphereEffect.Stop();
-        if (purpleBeamEffect) purpleBeamEffect.Stop();
-
+        // Make sure any existing instances are cleaned up
+        DestroyAllSpheres();
     }
+
+    void OnDisable()
+    {
+        // Clean up when disabled
+        DestroyAllSpheres();
+    }
+
+    private void DestroyAllSpheres()
+    {
+        if (blueSphereInstance) Destroy(blueSphereInstance);
+        if (redSphereInstance) Destroy(redSphereInstance);
+        if (purpleSphereInstance) Destroy(purpleSphereInstance);
+    }
+
 
     void Update()
     {
-        // Basic Attack (Left Click)
-        if (Input.GetKeyDown(KeyCode.Mouse0) && !isAttacking && !isChargingHollowPurple)
+        // Check if charging animation is playing
+        bool isInChargingState = animator.GetCurrentAnimatorStateInfo(0).IsName("Charging");
+
+        // Only allow new inputs if not in charging state or if charging is complete
+        if (!isInChargingState || isFullyCharged)
         {
-            StartCoroutine(PerformAttack(1, basicAttackDamage, basicAttackSound));
-        }
-        // Special Attack (R key)
-        if (Input.GetKeyDown(KeyCode.R) && !isAttacking && !isChargingHollowPurple)
-        {
-            StartCoroutine(PerformAttack(2, specialAttackDamage, specialAttackSound));
-        }
-        // Hollow Purple (Hold F to charge, release to fire)
-        if (Input.GetKeyDown(KeyCode.F) && !isAttacking && !isChargingHollowPurple)
-        {
-            StartCoroutine(ChargeHollowPurple());
-        }
-        if (Input.GetKeyUp(KeyCode.F) && isChargingHollowPurple)
-        {
-            if (isFullyCharged)  // Only fire if fully charged
+            // Basic Attack (Left Click)
+            if (Input.GetKeyDown(KeyCode.Mouse0) && !isAttacking && !isChargingHollowPurple)
             {
-                StartCoroutine(FireHollowPurple());
+                StartCoroutine(PerformAttack(1, basicAttackDamage, basicAttackSound));
             }
-            else  // If released too early, cancel the charging
+            // Special Attack (R key)
+            if (Input.GetKeyDown(KeyCode.R) && !isAttacking && !isChargingHollowPurple)
             {
-                StopHollowPurpleCharging();
+                StartCoroutine(PerformAttack(2, specialAttackDamage, specialAttackSound));
             }
+            // Hollow Purple input handling
+            if (Input.GetKey(KeyCode.F) && !isAttacking && !isChargingHollowPurple && !isPlayingChargingAnimation)
+            {
+                StartCoroutine(ChargeHollowPurple());
+            }
+        }
+
+        // Handle releasing F key
+        if (Input.GetKeyUp(KeyCode.F))
+        {
+            if (isFullyCharged)
+            {
+                StartCoroutine(ShootPurpleOrb());
+            }
+            StopHollowPurpleCharging();
         }
     }
 
@@ -126,133 +148,156 @@ public class PlayerAttack : MonoBehaviour
     IEnumerator ChargeHollowPurple()
     {
         isChargingHollowPurple = true;
-        isFullyCharged = false;
+        isPlayingChargingAnimation = true;
 
-        // Start charging animation if you have one
+        animator.SetBool(IsAttackingHash, true);
         animator.SetInteger(AttackTypeHash, 3);
+        animator.SetTrigger(TriggerChargeHash);
 
-        // Spawn blue sphere (positive energy)
-        if (blueSphereEffect)
+        yield return null;
+
+        float chargeProgress = 0f;
+
+        while (Input.GetKey(KeyCode.F) && chargeProgress < chargeTime * 2)
         {
-            blueSphereEffect.transform.position = rightSpherePosition.position;
-            blueSphereEffect.Play();
+            chargeProgress += Time.deltaTime;
+
+            // Spawn blue sphere at half charge
+            if (chargeProgress >= chargeTime && blueSphereInstance == null)
+            {
+                blueSphereInstance = Instantiate(blueSpherePrefab, rightSpherePosition.position, Quaternion.identity);
+                if (hollowPurpleChargeSound)
+                {
+                    audioSource.PlayOneShot(hollowPurpleChargeSound);
+                }
+            }
+
+            // Spawn red sphere at full charge
+            if (chargeProgress >= chargeTime * 2 && redSphereInstance == null)
+            {
+                redSphereInstance = Instantiate(redSpherePrefab, leftSpherePosition.position, Quaternion.identity);
+
+                // Start combining spheres
+                StartCoroutine(MoveSphereToPosition(blueSphereInstance, combinePosition.position));
+                StartCoroutine(MoveSphereToPosition(redSphereInstance, combinePosition.position));
+
+                yield return new WaitForSeconds(combineTime);
+
+                // Combine into purple sphere and immediately shoot
+                Destroy(blueSphereInstance);
+                Destroy(redSphereInstance);
+
+                purpleSphereInstance = Instantiate(purpleSpherePrefab, combinePosition.position, Quaternion.identity);
+                StartCoroutine(ShootPurpleOrb());
+
+                isFullyCharged = true;
+            }
+
+            yield return null;
         }
-        if (hollowPurpleChargeSound)
+
+        isPlayingChargingAnimation = false;
+
+        if (!isFullyCharged)
         {
-            audioSource.PlayOneShot(hollowPurpleChargeSound);
+            StopHollowPurpleCharging();
         }
-
-        yield return new WaitForSeconds(chargeTime);
-
-        // Spawn red sphere (negative energy)
-        if (redSphereEffect)
-        {
-            redSphereEffect.transform.position = leftSpherePosition.position;
-            redSphereEffect.Play();
-        }
-
-        yield return new WaitForSeconds(chargeTime);
-
-        // Move spheres to combine position
-        StartCoroutine(MoveSphereToPosition(blueSphereEffect, combinePosition.position));
-        StartCoroutine(MoveSphereToPosition(redSphereEffect, combinePosition.position));
-
-        yield return new WaitForSeconds(combineTime);
-
-        // Stop individual spheres and start purple sphere
-        if (blueSphereEffect) blueSphereEffect.Stop();
-        if (redSphereEffect) redSphereEffect.Stop();
-        if (purpleSphereEffect)
-        {
-            purpleSphereEffect.transform.position = combinePosition.position;
-            purpleSphereEffect.Play();
-        }
-
-        isFullyCharged = true;  // Mark as fully charged after spheres combine
     }
 
-    IEnumerator MoveSphereToPosition(ParticleSystem sphere, Vector3 targetPos)
+    IEnumerator MoveSphereToPosition(GameObject sphere, Vector3 targetPos)
     {
         if (sphere == null) yield break;
 
         Vector3 startPos = sphere.transform.position;
         float elapsedTime = 0;
 
+        // Get all particle systems in the sphere
+        ParticleSystem[] particles = sphere.GetComponentsInChildren<ParticleSystem>();
+        Light sphereLight = sphere.GetComponentInChildren<Light>();
+        float initialLightIntensity = sphereLight ? sphereLight.intensity : 0;
+
         while (elapsedTime < combineTime)
         {
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / combineTime;
 
-            // Use smooth step for more dramatic movement
+            // Smooth step for more dramatic movement
             t = t * t * (3f - 2f * t);
 
+            // Move the sphere
             sphere.transform.position = Vector3.Lerp(startPos, targetPos, t);
+
+            // Scale particle effects for dramatic effect
+            foreach (var ps in particles)
+            {
+                var main = ps.main;
+                main.startSizeMultiplier = Mathf.Lerp(1f, 1.5f, t);
+            }
+
+            // Intensify light as spheres combine
+            if (sphereLight)
+            {
+                sphereLight.intensity = Mathf.Lerp(initialLightIntensity, initialLightIntensity * 1.5f, t);
+            }
+
             yield return null;
         }
     }
 
     void StopHollowPurpleCharging()
     {
-        // Stop all particle effects
-        if (blueSphereEffect) blueSphereEffect.Stop();
-        if (redSphereEffect) redSphereEffect.Stop();
-        if (purpleSphereEffect) purpleSphereEffect.Stop();
+        DestroyAllSpheres();
 
-        // Reset states
         isChargingHollowPurple = false;
         isFullyCharged = false;
+        isPlayingChargingAnimation = false;
+        animator.SetBool(IsAttackingHash, false);
         animator.SetInteger(AttackTypeHash, 0);
     }
 
-    IEnumerator FireHollowPurple()
+    IEnumerator ShootPurpleOrb()
     {
-        if (!isFullyCharged) yield break;  // Safety check
+        if (purpleSphereInstance == null) yield break;
 
-        // Get the direction based on player's scale
         Vector2 direction = transform.localScale.x > 0 ? Vector2.right : Vector2.left;
-
-        // Stop the purple sphere and start the beam
-        if (purpleSphereEffect) purpleSphereEffect.Stop();
-        if (purpleBeamEffect)
-        {
-            purpleBeamEffect.transform.position = combinePosition.position;
-            purpleBeamEffect.transform.right = direction;
-            purpleBeamEffect.Play();
-        }
+        Vector3 startPosition = purpleSphereInstance.transform.position;
+        float distanceTraveled = 0f;
 
         if (hollowPurpleFireSound)
         {
             audioSource.PlayOneShot(hollowPurpleFireSound);
         }
 
-        // Deal damage in a line
-        RaycastHit2D[] hits = Physics2D.BoxCastAll(
-            combinePosition.position,
-            new Vector2(beamRadius, beamRadius),
-            0f,
-            direction,
-            beamRange,
-            whatIsEnemies
-        );
-
-        foreach (RaycastHit2D hit in hits)
+        while (distanceTraveled < maxShootDistance && purpleSphereInstance != null)
         {
-            if (hit.collider.TryGetComponent<Enemy>(out var enemy))
+            float moveStep = shootSpeed * Time.deltaTime;
+            purpleSphereInstance.transform.position += (Vector3)(direction * moveStep);
+            distanceTraveled += moveStep;
+
+            // Check for enemies along the path
+            Collider2D[] hits = Physics2D.OverlapCircleAll(purpleSphereInstance.transform.position, beamRadius, whatIsEnemies);
+            foreach (Collider2D hit in hits)
             {
-                enemy.TakeDamage(hollowPurpleDamage);
+                if (hit.TryGetComponent<Enemy>(out var enemy))
+                {
+                    enemy.TakeDamage(hollowPurpleDamage);
+                }
             }
+
+            yield return null;
         }
 
-        yield return new WaitForSeconds(beamDuration);
+        // Destroy the orb at the end of its journey
+        if (purpleSphereInstance != null)
+        {
+            Destroy(purpleSphereInstance);
+        }
 
-        // Stop all effects
-        if (purpleBeamEffect) purpleBeamEffect.Stop();
-
-        // Reset animation and states
         animator.SetInteger(AttackTypeHash, 0);
         isChargingHollowPurple = false;
         isFullyCharged = false;
     }
+
 
     // Also update the OnDrawGizmosSelected to show correct direction
     void OnDrawGizmosSelected()
@@ -261,14 +306,11 @@ public class PlayerAttack : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(attackPos.position, attackRange);
 
-        // Get the direction for the beam
-        Vector2 direction = transform.localScale.x > 0 ? Vector2.right : Vector2.left;
-
         // Draw Hollow Purple range in the correct direction
+        Vector2 direction = transform.localScale.x > 0 ? Vector2.right : Vector2.left;
+        Vector3 centerPoint = attackPos.position + new Vector3(direction.x * maxShootDistance / 2, 0, 0);
+
         Gizmos.color = Color.magenta;
-        Gizmos.DrawWireCube(
-            attackPos.position + new Vector3(direction.x * beamRange / 2, 0, 0),
-            new Vector3(beamRange, beamRadius * 2, 0.1f)
-        );
+        Gizmos.DrawWireCube(centerPoint, new Vector3(maxShootDistance, beamRadius * 2, 0.1f));
     }
 }

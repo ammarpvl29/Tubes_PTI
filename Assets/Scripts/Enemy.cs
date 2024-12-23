@@ -13,7 +13,9 @@ public class Enemy : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Animator animator;
     private bool isHit = false;
-    public float hitRecoveryTime = 0.5f; // Time for hit animation to complete
+    public float hitRecoveryTime = 0.75f; // Time for hit animation to complete
+
+    private bool isPerformingLaser = false;
 
     void Start()
     {
@@ -38,8 +40,15 @@ public class Enemy : MonoBehaviour
         {
             OnEnemyDeath?.Invoke();
             Destroy(gameObject);
+            return;
+        }
+        if (!isPerformingLaser) 
+        { 
+        
         }
     }
+
+
 
     public void TakeDamage(int damage)
     {
@@ -58,15 +67,12 @@ public class Enemy : MonoBehaviour
 
     private System.Collections.IEnumerator PlayHitAnimation()
     {
+        // Don't play hit animation if performing laser
+        if (isPerformingLaser) yield break;
+
         isHit = true;
-
-        // Trigger the hit animation
         animator.SetTrigger("Hit");
-
-        // Wait for the animation to complete
         yield return new WaitForSeconds(hitRecoveryTime);
-
-        // Reset hit state
         isHit = false;
     }
 
@@ -98,5 +104,10 @@ public class Enemy : MonoBehaviour
         {
             Debug.LogError("Blood effect prefab is not assigned in the Enemy script.");
         }
+    }
+
+    public void SetLaserState(bool performing)
+    {
+        isPerformingLaser = performing;
     }
 }
