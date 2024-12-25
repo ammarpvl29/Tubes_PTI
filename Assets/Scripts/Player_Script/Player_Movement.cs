@@ -106,6 +106,23 @@ public class PlayerMovement : MonoBehaviour
                 Flip();
             }
         }
+
+        // Check both local and PlayerAttack states
+        bool canMove = !animator.GetBool("IsAttacking") &&
+                      !isRolling &&
+                      !GetComponent<PlayerAttack>().IsChargingHollowPurple();
+
+        if (canMove)
+        {
+            // Add air control
+            float moveMultiplier = isGrounded ? 1f : 0.7f;
+            rb.velocity = new Vector2(horizontalInput * speed * moveMultiplier, rb.velocity.y);
+        }
+        // Add movement dampening when transitioning states
+        else if (!isRolling)
+        {
+            rb.velocity = new Vector2(rb.velocity.x * 0.9f, rb.velocity.y);
+        }
     }
 
     private void StartRoll()

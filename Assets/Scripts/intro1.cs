@@ -15,6 +15,6 @@ public class introawal : MonoBehaviour
     IEnumerator WaitAndLoadMainMenu()
     {
         yield return new WaitForSeconds(waitTime);
-        SceneManager.LoadScene("Game2"); // Pastikan nama scene "prototype_1" sesuai dengan yang ada di Build Settings
+        SceneManager.LoadScene("IntroDialogueScene"); // Pastikan nama scene "prototype_1" sesuai dengan yang ada di Build Settings
     }
 }

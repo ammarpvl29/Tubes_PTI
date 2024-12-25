@@ -13,7 +13,9 @@ public class Enemy : MonoBehaviour
     private SpriteRenderer spriteRenderer;
     private Animator animator;
     private bool isHit = false;
+
     public float hitRecoveryTime = 0.75f; // Time for hit animation to complete
+    public float significantDamagePercent = 0.2f; // 20% of max health
 
     private bool isPerformingLaser = false;
 
@@ -52,8 +54,16 @@ public class Enemy : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+        int previousHealth = currentHealth;
         currentHealth -= damage;
         healthBar.SetHealth(currentHealth);
+
+        // Check if significant damage was taken
+        float damagePercent = (float)damage / maxHealth;
+        if (damagePercent >= significantDamagePercent)
+        {
+            healthBar.TriggerPhaseTransition();
+        }
 
         // Play hit animation if we're not already in hit state
         if (!isHit && animator != null)

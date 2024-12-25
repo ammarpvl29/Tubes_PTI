@@ -24,8 +24,8 @@ public class Enemy_AI : MonoBehaviour
         laserAttack = GetComponent<SlimeLaserAttack>();
         animator = GetComponent<Animator>();
         SetNextAttackTime();
+        bossWeapon.OnPlayerHit += HandlePlayerHit;
     }
-
 
     private void Update()
     {
@@ -36,6 +36,12 @@ public class Enemy_AI : MonoBehaviour
                 StartCoroutine(PerformLaserAttack());
             }
         }
+    }
+
+    private void HandlePlayerHit(int damage)
+    {
+        // Do something when the player is hit
+        Debug.Log($"Player hit for {damage} damage!");
     }
 
     public void LookAtPlayer()
@@ -74,6 +80,7 @@ public class Enemy_AI : MonoBehaviour
         if (bossWeapon == null) yield break;
 
         isAttacking = true;
+
         // Face the player before attacking
         LookAtPlayer();
 
@@ -90,10 +97,10 @@ public class Enemy_AI : MonoBehaviour
         bossWeapon.FireLaser();
 
         // Hold the animation until laser attack is complete
-        yield return new WaitForSeconds(laserAttack != null ? laserAttack.attackDuration : 3f);
+        yield return new WaitForSeconds(laserAttack != null ? laserAttack.Settings.attackDuration : 3f);
 
         // Wait for cooldown
-        yield return new WaitForSeconds(laserAttack != null ? laserAttack.cooldownTime : 5f);
+        yield return new WaitForSeconds(laserAttack != null ? laserAttack.Settings.cooldownTime : 5f);
 
         // Reset attack state and set next attack time
         isAttacking = false;
@@ -104,5 +111,14 @@ public class Enemy_AI : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, laserAttackRange);
+    }
+
+    private void OnDestroy()
+    {
+        // Always unsubscribe when the object is destroyed
+        if (bossWeapon != null)
+        {
+            bossWeapon.OnPlayerHit -= HandlePlayerHit;
+        }
     }
 }
