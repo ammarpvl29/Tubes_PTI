@@ -66,6 +66,9 @@ public class Boss_Weapon : MonoBehaviour
 
     private void Update()
     {
+        if (EnhancedPauseManager.Instance.IsPaused)
+            return;
+
         HandleRoarTimer();
     }
 

@@ -51,6 +51,10 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+
+        if (EnhancedPauseManager.Instance.IsPaused)
+            return;
+
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
         animator.SetBool("IsGrounded", isGrounded);
 

@@ -108,6 +108,9 @@ public class SlimeLaserAttack : MonoBehaviour
 
     private void Update()
     {
+        if (EnhancedPauseManager.Instance.IsPaused)
+            return;
+
         if (!isAttacking) return;
 
         if (warmupProgress < laserSettings.warmupTime)

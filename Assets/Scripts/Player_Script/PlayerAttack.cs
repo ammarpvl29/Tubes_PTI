@@ -89,6 +89,9 @@ public class PlayerAttack : MonoBehaviour
 
     private void Update()
     {
+        if (EnhancedPauseManager.Instance.IsPaused)
+            return;
+
         // Check hollow purple availability based on enemy health
         CheckHollowPurpleAvailability();
 

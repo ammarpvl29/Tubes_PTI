@@ -33,6 +33,9 @@ public class AttackIconUI : MonoBehaviour
 
     private void Update()
     {
+        if (EnhancedPauseManager.Instance.IsPaused)
+            return;
+
         UpdateIconCooldown(basicAttackIcon, playerAttack.IsBasicAttackOnCooldown(), playerAttack.GetBasicAttackCooldown());
         UpdateIconCooldown(specialAttackIcon, playerAttack.IsSpecialAttackOnCooldown(), playerAttack.GetSpecialAttackCooldown());
 

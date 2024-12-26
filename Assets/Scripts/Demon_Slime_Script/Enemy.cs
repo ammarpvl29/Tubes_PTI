@@ -38,6 +38,9 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
+        if (EnhancedPauseManager.Instance.IsPaused)
+            return;
+
         if (currentHealth <= 0)
         {
             OnEnemyDeath?.Invoke();
@@ -49,8 +52,6 @@ public class Enemy : MonoBehaviour
         
         }
     }
-
-
 
     public void TakeDamage(int damage)
     {

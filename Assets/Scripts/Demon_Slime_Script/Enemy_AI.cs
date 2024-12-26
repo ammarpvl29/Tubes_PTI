@@ -29,6 +29,9 @@ public class Enemy_AI : MonoBehaviour
 
     private void Update()
     {
+        if (EnhancedPauseManager.Instance.IsPaused)
+            return;
+
         if (!isAttacking && Time.time >= nextAttackTime)
         {
             if (IsPlayerInRange())
