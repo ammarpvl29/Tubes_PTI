@@ -25,7 +25,7 @@ public class Boss_Weapon : MonoBehaviour
     }
 
     [Header("Attack Configuration")]
-    [SerializeField] private AttackSettings attackSettings;
+    [SerializeField] public AttackSettings attackSettings;
 
     [Header("Audio Configuration")]
     [SerializeField] private AudioSettings audioSettings;
@@ -41,6 +41,7 @@ public class Boss_Weapon : MonoBehaviour
     private bool isLaserAttacking;
     public delegate void OnPlayerHitHandler(int damage);
     public event OnPlayerHitHandler OnPlayerHit;
+
 
     // Cached animation parameter hashes
     private static readonly int IsLaserChargingHash = Animator.StringToHash("isLaserCharging");
