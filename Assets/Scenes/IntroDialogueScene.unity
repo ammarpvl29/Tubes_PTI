@@ -3900,8 +3900,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -314.47754, y: -356}
-  m_SizeDelta: {x: 484.3175, y: 19.0643}
+  m_AnchoredPosition: {x: -270.48108, y: -340.59793}
+  m_SizeDelta: {x: 517.647, y: 24.2005}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &427176708
 MonoBehaviour:
@@ -8030,8 +8030,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -716.03076, y: -419.92102}
-  m_SizeDelta: {x: 174.3405, y: 167.468}
+  m_AnchoredPosition: {x: -680.2844, y: -413.08142}
+  m_SizeDelta: {x: 186.3382, y: 212.5862}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1081863954
 MonoBehaviour:
@@ -8576,45 +8576,85 @@ MonoBehaviour:
   dialogues:
   - lines:
     - speakerName: Hans
-      dialogueText: (mengambil napas dalam-dalam) "Kau membuat semua penduduk desa
-        ketakutan, dan tugaskulah untuk membereskan kekacauan ini."
+      dialogueText: (bergumam pada dirinya sendiri) Apa-apaan benda ini? Bagaimana
+        benda ini bisa ada di sini?
       speakerImage: {fileID: 21300000, guid: ef52b6a233fb40a4389ba604db4a7ba4, type: 3}
       textSound: {fileID: 0}
-      voiceClip: {fileID: 8300000, guid: 17ea3c09e84400d43944f390ff667826, type: 3}
+      voiceClip: {fileID: 8300000, guid: 74d3b1176d0895c4e90f1194b13ac0b6, type: 3}
     - speakerName: Demon Slime
-      dialogueText: '"Manusia, beraninya kau masuk tanpa izin ke wilayahku? Apa yang
-        membuatmu berpikir bisa menghentikanku?"'
+      dialogueText: (suara bergema) Manusia bodoh... Kau berdiri di hadapan Demon
+        Slime yang agung. Kotoran duniamu telah memberiku kehidupan dan kekuatan!
       speakerImage: {fileID: 21300000, guid: 77d8861fd766ab240b0eadcfebbc6b8e, type: 3}
       textSound: {fileID: 0}
-      voiceClip: {fileID: 8300000, guid: b1964eb3da758f2419df99f0cc378ae9, type: 3}
+      voiceClip: {fileID: 8300000, guid: ec56265b29f528943b6b96004d38279d, type: 3}
     - speakerName: Hans
-      dialogueText: '"Aku di sini bukan untuk bertarung, belum sekarang. Aku ingin
-        tahu mengapa kau di sini."'
+      dialogueText: (gagap) T-tunggu, apa? Kotoran? Apa yang kau bicarakan?
       speakerImage: {fileID: 21300000, guid: ef52b6a233fb40a4389ba604db4a7ba4, type: 3}
       textSound: {fileID: 0}
-      voiceClip: {fileID: 8300000, guid: 651a700d18f1dad40bd3862ed5fe7948, type: 3}
+      voiceClip: {fileID: 8300000, guid: 2eeded49b3d9ed344b1317a7e7d7c0b8, type: 3}
     - speakerName: Demon Slime
-      dialogueText: '"Kau, manusia. Kelalaian itu adalah dirimu. Sampah yang kau
-        buang, bercampur dengan sihir yang kau abaikan, membangunkanku. Aku adalah
-        hasil dari tindakanmu."'
+      dialogueText: "(tertawa kecil) Selama bertahun-tahun, kaummu telah mencemari
+        tanah ini dengan limbahmu, kelalaianmu. Namun, limbahmu\u2014sampahmu yang
+        mengandung sihir\u2014yang membangunkanku. Aku adalah perwujudan dosa-dosamu,
+        Hans. Tanganmu menciptakan aku."
       speakerImage: {fileID: 21300000, guid: 77d8861fd766ab240b0eadcfebbc6b8e, type: 3}
       textSound: {fileID: 0}
-      voiceClip: {fileID: 8300000, guid: 4d59b22c7fc531e4b857a18efab50aac, type: 3}
+      voiceClip: {fileID: 8300000, guid: 5d8e723471a469a48acb1c406f3b43a8, type: 3}
     - speakerName: Hans
-      dialogueText: '"Aku tidak pernah tahu... Aku hanya ingin mendapatkan sesuatu.
-        Tapi sekarang, aku melihat konsekuensi dari ketidaktahuanku. Leluhurku meninggalkanku
-        alat untuk menghadapi sihir, dan sudah saatnya aku menggunakannya."'
+      dialogueText: (mundur, ngeri) Tanganku... tanganku? Tidak, tidak, aku tidak
+        tahu! Aku hanya melakukan pekerjaanku! Bukannya aku bermaksud melakukan ini!
       speakerImage: {fileID: 21300000, guid: ef52b6a233fb40a4389ba604db4a7ba4, type: 3}
       textSound: {fileID: 0}
-      voiceClip: {fileID: 8300000, guid: 55011b273c377444e8d70383d9b5dd43, type: 3}
+      voiceClip: {fileID: 8300000, guid: 969b9c47bb61d9e4f8db8ff4bc021fc4, type: 3}
     - speakerName: Demon Slime
-      dialogueText: '"Sudah terlambat untuk menyesal. Kerusakan sudah terjadi. Dan
-        kau akan menjadi orang pertama yang menerima akibatnya!"'
+      dialogueText: (mengejek) Ketidaktahuan tidak bisa menghapus rasa bersalah,
+        manusia. Semakin banyak kotoran yang kau tuangkan ke dunia ini, semakin kuat
+        aku tumbuh. Kau tak bisa menghentikanku!
       speakerImage: {fileID: 21300000, guid: 77d8861fd766ab240b0eadcfebbc6b8e, type: 3}
       textSound: {fileID: 0}
-      voiceClip: {fileID: 8300000, guid: 90991d312cc7b7d4a98bad811e105a55, type: 3}
+      voiceClip: {fileID: 8300000, guid: 8b3825be63ca3d24c944bfcf7bb504b6, type: 3}
+    - speakerName: Hans
+      dialogueText: (berpikir keras) Kotoran... Tunggu sebentar. Jika sampah memberimu
+        kekuatan, maka... membuangnya akan melemahkanmu.
+      speakerImage: {fileID: 21300000, guid: ef52b6a233fb40a4389ba604db4a7ba4, type: 3}
+      textSound: {fileID: 0}
+      voiceClip: {fileID: 8300000, guid: b860d89b7c410094a9de75934bbeed2e, type: 3}
+    - speakerName: Demon Slime
+      dialogueText: (mencibir) Hah! Seolah kau bisa membatalkan sampah bertahun-tahun
+        hanya dalam beberapa saat. Kau tak bisa berharap membersihkan tempat ini
+        lebih cepat daripada aku menghabiskannya.
+      speakerImage: {fileID: 21300000, guid: 77d8861fd766ab240b0eadcfebbc6b8e, type: 3}
+      textSound: {fileID: 0}
+      voiceClip: {fileID: 8300000, guid: 00a3e150661debe4186dbf6f94704f88, type: 3}
+    - speakerName: Hans
+      dialogueText: "(mendapatkan kepercayaan diri) Mungkin tidak sendirian, tetapi
+        aku tidak harus melawanmu secara langsung. Jika aku bisa memutus sumber kekuatanmu\u2014membersihkan
+        sampah di dekatmu\u2014aku bisa melemahkanmu cukup untuk menghentikanmu."
+      speakerImage: {fileID: 21300000, guid: ef52b6a233fb40a4389ba604db4a7ba4, type: 3}
+      textSound: {fileID: 0}
+      voiceClip: {fileID: 8300000, guid: d55e88732052a5145b674330146b8ea7, type: 3}
+    - speakerName: Demon Slime
+      dialogueText: (suara meninggi karena marah) Manusia kurang ajar! Kau pikir
+        kau bisa begitu saja membersihkanku? Aku adalah puncak dari puluhan tahun
+        pengabaian dan pembusukan!
+      speakerImage: {fileID: 21300000, guid: 77d8861fd766ab240b0eadcfebbc6b8e, type: 3}
+      textSound: {fileID: 0}
+      voiceClip: {fileID: 8300000, guid: 1f54215751d3cb14eac11a2f1271a36a, type: 3}
+    - speakerName: Hans
+      dialogueText: (menyeringai gugup) Baiklah, kita akan segera mengetahuinya.
+        Sepertinya aku akan melakukan banyak tugas membersihkan sampah. Dimulai denganmu.
+      speakerImage: {fileID: 21300000, guid: ef52b6a233fb40a4389ba604db4a7ba4, type: 3}
+      textSound: {fileID: 0}
+      voiceClip: {fileID: 8300000, guid: c155edfbf89529d4fab81ca670db96da, type: 3}
+    - speakerName: Demon Slime
+      dialogueText: (mengaum, wujudnya berdenyut hebat) Kau akan menyesali pembangkangan
+        ini, Hans! Semakin kau melawan, semakin banyak keputusasaan yang akan kau
+        bawa pada dirimu sendiri!
+      speakerImage: {fileID: 21300000, guid: 77d8861fd766ab240b0eadcfebbc6b8e, type: 3}
+      textSound: {fileID: 0}
+      voiceClip: {fileID: 8300000, guid: 97ae8ca31b8d3f74fad5324b855dacf0, type: 3}
     nextSceneName: Game1
-  textSpeed: 0.03
+  textSpeed: 0.02
   dialogueTransitionDelay: 1
 --- !u!82 &1206041159
 AudioSource:
@@ -10866,8 +10906,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 13.1357, y: -404.4406}
-  m_SizeDelta: {x: 1139.4044, y: 55.7358}
+  m_AnchoredPosition: {x: 79.67761, y: -402.0891}
+  m_SizeDelta: {x: 1217.8153, y: 70.7518}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1579683474
 MonoBehaviour:
@@ -11084,8 +11124,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -468, y: -420}
-  m_SizeDelta: {x: 765.7822, y: 240.7733}
+  m_AnchoredPosition: {x: -458.86353, y: -411.75955}
+  m_SizeDelta: {x: 683.0773, y: 257.2541}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1641490167
 MonoBehaviour:
@@ -11773,8 +11813,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -270, y: -419.81}
-  m_SizeDelta: {x: 1894.6654, y: 240.38}
+  m_AnchoredPosition: {x: -222.94275, y: -411.55658}
+  m_SizeDelta: {x: 2025.0514, y: 256.8339}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1787380930
 MonoBehaviour:

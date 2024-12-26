@@ -58,6 +58,16 @@ public class PlayerMovement : MonoBehaviour
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
         animator.SetBool("IsGrounded", isGrounded);
 
+        // Add falling animation
+        if (!isGrounded && rb.velocity.y < -0.1f)
+        {
+            animator.SetBool("IsFalling", true);
+        }
+        else
+        {
+            animator.SetBool("IsFalling", false);
+        }
+
         if (!canRoll)
         {
             rollCooldownTimeLeft -= Time.deltaTime;
