@@ -145,63 +145,91 @@ public class PlayerAttack : MonoBehaviour
     private async void PerformAttack(int attackType, AttackConfig config)
     {
         // Check if attack is already on cooldown or if we're in an attack animation
-        if (config.isOnCooldown || isAttacking) return;
+        if (config.isOnCooldown || isAttacking || animator == null) return;  // Add null check
 
-        // Check if we're currently in an attack animation state
-        AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
-        if (currentState.IsName("Player_Attack1") || currentState.IsName("Player_Attack2"))
+        try
         {
-            return;
-        }
-
-        isAttacking = true;
-        config.isOnCooldown = true;
-
-        // Set animation parameters
-        animator.SetBool(IsAttackingHash, true);
-        animator.SetInteger(AttackTypeHash, attackType);
-
-        if (config.sound) audioSource.PlayOneShot(config.sound);
-
-        // Wait for attack animation to reach the damage frame
-        await Task.Delay(100);
-
-        // Perform the damage check
-        var hits = Physics2D.OverlapCircleAll(attackPoint.position, attackRadius, enemyLayer);
-        foreach (var hit in hits)
-        {
-            if (hit.TryGetComponent<Enemy>(out var enemy))
+            // Check if we're currently in an attack animation state
+            AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
+            if (currentState.IsName("Player_Attack1") || currentState.IsName("Player_Attack2"))
             {
-                enemy.TakeDamage(config.damage);
+                return;
             }
+
+            isAttacking = true;
+            config.isOnCooldown = true;
+
+            // Set animation parameters
+            animator.SetBool(IsAttackingHash, true);
+            animator.SetInteger(AttackTypeHash, attackType);
+
+            if (config.sound && audioSource != null) audioSource.PlayOneShot(config.sound);
+
+            // Wait for attack animation to reach the damage frame
+            await Task.Delay(100);
+
+            // Perform the damage check
+            var hits = Physics2D.OverlapCircleAll(attackPoint.position, attackRadius, enemyLayer);
+            foreach (var hit in hits)
+            {
+                if (hit.TryGetComponent<Enemy>(out var enemy))
+                {
+                    enemy.TakeDamage(config.damage);
+                }
+            }
+
+            // Wait for animation to complete (you might need to adjust this time)
+            float animationLength = attackType == 1 ? 0.5f : 0.7f; // Adjust these values based on your animation lengths
+            await Task.Delay((int)(animationLength * 1000));
+
+            // Only reset if the component still exists
+            if (this != null && animator != null)
+            {
+                ResetAttackState();
+            }
+            else
+            {
+                isAttacking = false;
+            }
+
+            // Wait for the remaining cooldown if any
+            float remainingCooldown = config.cooldown - animationLength;
+            if (remainingCooldown > 0)
+            {
+                await Task.Delay((int)(remainingCooldown * 1000));
+            }
+
+            config.isOnCooldown = false;
         }
-
-        // Wait for animation to complete (you might need to adjust this time)
-        float animationLength = attackType == 1 ? 0.5f : 0.7f; // Adjust these values based on your animation lengths
-        await Task.Delay((int)(animationLength * 1000));
-
-        // Reset attack state
-        ResetAttackState();
-
-        // Wait for the remaining cooldown if any
-        float remainingCooldown = config.cooldown - animationLength;
-        if (remainingCooldown > 0)
+        catch (MissingReferenceException)
         {
-            await Task.Delay((int)(remainingCooldown * 1000));
+            // Handle the case where components are destroyed during execution
+            isAttacking = false;
+            config.isOnCooldown = false;
         }
-
-        config.isOnCooldown = false;
     }
 
     private void ResetAttackState()
     {
+        if (animator == null) return;  // Add null check
+
         // Only reset if we're not in the middle of another attack animation
-        AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
-        if (currentState.IsName("Player_Attack1") || currentState.IsName("Player_Attack2") || currentState.IsName("Player_Powering"))
+        try
         {
-            animator.SetBool(IsAttackingHash, false);
-            animator.SetInteger(AttackTypeHash, 0);
+            AnimatorStateInfo currentState = animator.GetCurrentAnimatorStateInfo(0);
+            if (currentState.IsName("Player_Attack1") || currentState.IsName("Player_Attack2") || currentState.IsName("Player_Powering"))
+            {
+                animator.SetBool(IsAttackingHash, false);
+                animator.SetInteger(AttackTypeHash, 0);
+            }
         }
+        catch (MissingReferenceException)
+        {
+            // Handle the case where animator is destroyed during execution
+            isAttacking = false;
+            return;
+        }
+
         isAttacking = false;
     }
 

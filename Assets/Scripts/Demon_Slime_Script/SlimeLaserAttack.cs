@@ -21,9 +21,20 @@ public class SlimeLaserAttack : MonoBehaviour
         public float maxAngle = 60f;
     }
 
+    [System.Serializable]
+    public class VFXSettings
+    {
+        public GameObject laserVFXPrefab;
+        public Vector3 vfxOffset = Vector3.zero;
+        public bool flipXWithDirection = true;
+        public bool adjustScaleWithLaser = true;
+        public float baseScale = 1f;
+    }
+
     [Header("Core Settings")]
     [SerializeField] private LaserSettings laserSettings;
     [SerializeField] private RotationSettings rotationSettings;
+    [SerializeField] private VFXSettings vfxSettings;
 
     [Header("References")]
     [SerializeField] private GameObject laserPrefab;
@@ -33,11 +44,14 @@ public class SlimeLaserAttack : MonoBehaviour
     public LaserSettings Settings => laserSettings;
 
     private GameObject activeLaser;
+    private GameObject activeVFX;
     private LineRenderer laserLine;
     private ParticleSystem[] laserParticles;
     private Animator animator;
+    private Animator vfxAnimator;
     private static readonly int LaserAttackHash = Animator.StringToHash("LaserAttack");
     private static readonly int IsLaserChargingHash = Animator.StringToHash("isLaserCharging");
+    private static readonly int PlayVFXHash = Animator.StringToHash("PlayVFX");
 
     private bool isAttacking;
     private float warmupProgress;
@@ -72,6 +86,56 @@ public class SlimeLaserAttack : MonoBehaviour
             : transform.right * Mathf.Sign(transform.localScale.x);
 
         InitializeLaser();
+        InitializeVFX();
+    }
+
+    private void InitializeVFX()
+    {
+        if (!vfxSettings.laserVFXPrefab) return;
+
+        // Spawn VFX object
+        activeVFX = Instantiate(vfxSettings.laserVFXPrefab, laserOrigin.position, Quaternion.identity, laserOrigin);
+        activeVFX.transform.localPosition = vfxSettings.vfxOffset;
+
+        // Get and configure VFX animator
+        vfxAnimator = activeVFX.GetComponent<Animator>();
+        if (vfxAnimator)
+        {
+            // Ensure the animation doesn't play automatically
+            vfxAnimator.keepAnimatorStateOnDisable = true;
+            vfxAnimator.SetTrigger(PlayVFXHash);
+        }
+
+        UpdateVFXTransform(laserDirection);
+    }
+
+    private void UpdateVFXTransform(Vector3 direction)
+    {
+        if (!activeVFX) return;
+
+        // Update position relative to laser origin
+        activeVFX.transform.position = laserOrigin.position + vfxSettings.vfxOffset;
+
+        // Update rotation to match laser direction
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        activeVFX.transform.rotation = Quaternion.Euler(0, 0, angle);
+
+        // Update scale if needed
+        if (vfxSettings.adjustScaleWithLaser)
+        {
+            float scaleMultiplier = laserSettings.length / 10f; // Assuming 10 is the base length
+            activeVFX.transform.localScale = new Vector3(
+                vfxSettings.baseScale * (vfxSettings.flipXWithDirection ? Mathf.Sign(direction.x) : 1),
+                vfxSettings.baseScale,
+                vfxSettings.baseScale
+            ) * scaleMultiplier;
+        }
+        else if (vfxSettings.flipXWithDirection)
+        {
+            Vector3 scale = activeVFX.transform.localScale;
+            scale.x = vfxSettings.baseScale * Mathf.Sign(direction.x);
+            activeVFX.transform.localScale = scale;
+        }
     }
 
     private void InitializeLaser()
@@ -121,6 +185,7 @@ public class SlimeLaserAttack : MonoBehaviour
         {
             HandleAttack();
         }
+        UpdateVFXTransform(laserDirection);
     }
 
     private void HandleWarmup()
@@ -239,6 +304,21 @@ public class SlimeLaserAttack : MonoBehaviour
                 maxDuration = Mathf.Max(maxDuration, ps.main.duration);
             }
             Destroy(activeLaser, maxDuration);
+        }
+
+        // Handle VFX cleanup
+        if (activeVFX)
+        {
+            // Get the length of the VFX animation
+            if (vfxAnimator != null)
+            {
+                float animationLength = vfxAnimator.GetCurrentAnimatorStateInfo(0).length;
+                Destroy(activeVFX, animationLength);
+            }
+            else
+            {
+                Destroy(activeVFX);
+            }
         }
 
         Invoke(nameof(ResetAttack), laserSettings.cooldownTime);
