@@ -31,6 +31,7 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private Enemy enemyBoss;  // Reference to the boss enemy
     private bool isHollowPurpleAvailable = false;  // Track if hollow purple can be used
 
+    private PlayerMovement playerMovement;
     private AudioSource audioSource;
     private Animator animator;
     private bool isAttacking;
@@ -83,6 +84,14 @@ public class PlayerAttack : MonoBehaviour
 
         audioSource.playOnAwake = false;
         audioSource.volume = 0.5f;
+
+        playerMovement = GetComponent<PlayerMovement>();
+    }
+
+    private bool CanPerformActions()
+    {
+        if (playerMovement == null) return false;
+        return playerMovement.CanAttack();
     }
 
     private void OnDisable() => CleanupHollowPurple();
@@ -101,28 +110,32 @@ public class PlayerAttack : MonoBehaviour
         // Only allow new inputs if not in charging state or if charging is complete
         if (!isInChargingState || isFullyCharged)
         {
-            // Basic Attack
-            if (Input.GetMouseButtonDown(0) && !basicAttack.isOnCooldown && !isAttacking && !isChargingHollowPurple)
+            // Only process attacks if we can perform actions
+            if (CanPerformActions())
             {
-                PerformAttack(1, basicAttack);
-            }
-            // Special Attack
-            else if (Input.GetKeyDown(KeyCode.R) && !specialAttack.isOnCooldown && !isAttacking && !isChargingHollowPurple)
-            {
-                PerformAttack(2, specialAttack);
-            }
-            // Hollow Purple - only if available and enemy health is below 50%
-            else if (Input.GetKey(KeyCode.F) && !isAttacking && !isChargingHollowPurple
-                    && !isPlayingChargingAnimation && isHollowPurpleAvailable)
-            {
-                StartCoroutine(ChargeHollowPurple());
+                // Basic Attack
+                if (Input.GetMouseButtonDown(0) && !basicAttack.isOnCooldown && !isAttacking && !isChargingHollowPurple)
+                {
+                    PerformAttack(1, basicAttack);
+                }
+                // Special Attack
+                else if (Input.GetKeyDown(KeyCode.R) && !specialAttack.isOnCooldown && !isAttacking && !isChargingHollowPurple)
+                {
+                    PerformAttack(2, specialAttack);
+                }
+                // Hollow Purple - only if available and enemy health is below 50%
+                else if (Input.GetKey(KeyCode.F) && !isAttacking && !isChargingHollowPurple
+                        && !isPlayingChargingAnimation && isHollowPurpleAvailable)
+                {
+                    StartCoroutine(ChargeHollowPurple());
+                }
             }
         }
 
-        // Handle releasing F key
+        // Handle releasing F key - allowed even when can't perform actions to cancel charge
         if (Input.GetKeyUp(KeyCode.F))
         {
-            if (isFullyCharged)
+            if (isFullyCharged && CanPerformActions())
             {
                 StartCoroutine(FireHollowPurple());
             }
@@ -388,14 +401,8 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
-    // Called by Animation Event at the end of attack animations
-    public void OnAttackAnimationComplete()
-    {
-        ResetAttackState();
-    }
-
     public bool IsHollowPurpleAvailable()
     {
-        return isHollowPurpleAvailable;
+        return isHollowPurpleAvailable && CanPerformActions();
     }
 }

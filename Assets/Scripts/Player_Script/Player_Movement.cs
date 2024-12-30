@@ -1,15 +1,26 @@
 using UnityEngine;
+using System.Collections;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float speed;
+    [Header("Movement Settings")]
+    [SerializeField] private float speed = 5f;
     [SerializeField] private float jumpForce = 5f;
-    [SerializeField] private float rollSpeed = 8f;
+    [SerializeField] private float airControlMultiplier = 0.7f;
+
+    [Header("Ground Check")]
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private float groundCheckRadius = 0.2f;
 
+    [Header("Roll Settings")]
+    [SerializeField] private float rollSpeed = 8f;
     [SerializeField] private float rollDuration = 0.25f;
     [SerializeField] private float rollCooldown = 0.5f;
+
+    [Header("Attack Settings")]
+    [SerializeField] private float lightAttackDuration = 0.517f; // 31 frames at 60fps
+    [SerializeField] private float heavyAttackDuration = 0.8f;
+    [SerializeField] private float specialAttackDuration = 1f;
 
     private Rigidbody2D rb;
     private Vector3 originalScale;
@@ -18,138 +29,169 @@ public class PlayerMovement : MonoBehaviour
     private Transform groundCheck;
     private Animator animator;
 
-    private bool isRolling = false;
-    private bool canRoll = true;
-    private float rollTimeLeft;
-    private float rollCooldownTimeLeft;
-
-    // Layer variables
+    // Layer management
     private int playerLayer;
     private int enemyLayer;
-    private ContactFilter2D contactFilter;
+
+    // State Management
+    private enum PlayerState
+    {
+        Normal,
+        Rolling,
+        LightAttacking,
+        HeavyAttacking,
+        SpecialAttacking
+    }
+    private PlayerState currentState = PlayerState.Normal;
+    private float currentStateTime = 0f;
+    private float rollCooldownTimer = 0f;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        originalScale = transform.localScale;
         animator = GetComponent<Animator>();
+        originalScale = transform.localScale;
 
         groundCheck = new GameObject("GroundCheck").transform;
         groundCheck.parent = transform;
         groundCheck.localPosition = new Vector3(0, -0.5f, 0);
 
-        // Cache layer numbers
+        // Cache the layers
         playerLayer = gameObject.layer;
         enemyLayer = LayerMask.NameToLayer("Enemy");
-
-        // Setup contact filter for potential future use
-        contactFilter = new ContactFilter2D();
-        contactFilter.useTriggers = false;
-        contactFilter.useLayerMask = true;
-        contactFilter.layerMask = LayerMask.GetMask("Enemy");
     }
 
-    void Update()
+    private void Update()
     {
-
         if (EnhancedPauseManager.Instance.IsPaused)
             return;
 
+        UpdateGroundState();
+        HandleStateTimer();
+        HandleInputs();
+        UpdateAnimator();
+    }
+
+    private void FixedUpdate()
+    {
+        if (EnhancedPauseManager.Instance.IsPaused)
+            return;
+
+        ApplyMovement();
+    }
+
+    private void UpdateGroundState()
+    {
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
         animator.SetBool("IsGrounded", isGrounded);
+    }
 
-        // Add falling animation
-        if (!isGrounded && rb.velocity.y < -0.1f)
-        {
-            animator.SetBool("IsFalling", true);
-        }
-        else
-        {
-            animator.SetBool("IsFalling", false);
-        }
+    public bool CanAttack()
+    {
+        return currentState == PlayerState.Normal &&
+               isGrounded &&
+               currentState != PlayerState.Rolling &&
+               rb.velocity.y >= -0.1f;
+    }
 
-        if (!canRoll)
+    private void HandleStateTimer()
+    {
+        if (currentState != PlayerState.Normal)
         {
-            rollCooldownTimeLeft -= Time.deltaTime;
-            if (rollCooldownTimeLeft <= 0)
+            currentStateTime -= Time.deltaTime;
+            if (currentStateTime <= 0)
             {
-                canRoll = true;
+                ExitCurrentState();
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.LeftShift) && isGrounded && canRoll && !isRolling
-            && !animator.GetBool("IsAttacking") && !animator.GetCurrentAnimatorStateInfo(0).IsName("Player_Powering"))
+        if (rollCooldownTimer > 0)
         {
-            StartRoll();
-        }
-
-        if (isRolling)
-        {
-            UpdateRoll();
-        }
-        else
-        {
-            HandleNormalMovement();
+            rollCooldownTimer -= Time.deltaTime;
         }
     }
 
-    private void HandleNormalMovement()
+    private void HandleInputs()
     {
-        float horizontalInput = Input.GetAxis("Horizontal");
-        animator.SetFloat("Speed", Mathf.Abs(horizontalInput));
-
-        if (!animator.GetBool("IsAttacking"))
+        // Only process new attacks if we can attack
+        if (CanAttack())
         {
-            rb.velocity = new Vector2(horizontalInput * speed, rb.velocity.y);
-        }
-
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded && !animator.GetBool("IsAttacking"))
-        {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-            animator.SetTrigger("Jump");
-        }
-
-        if (!animator.GetBool("IsAttacking"))
-        {
-            if (horizontalInput > 0 && !isFacingRight)
+            // Light Attack
+            if (Input.GetMouseButtonDown(0))
             {
-                Flip();
+                StartAttackState(PlayerState.LightAttacking, lightAttackDuration);
+                return;
             }
-            else if (horizontalInput < 0 && isFacingRight)
+            // Heavy Attack
+            else if (Input.GetKeyDown(KeyCode.R))
             {
-                Flip();
+                StartAttackState(PlayerState.HeavyAttacking, heavyAttackDuration);
+                return;
+            }
+            // Special Attack
+            else if (Input.GetKeyDown(KeyCode.F))
+            {
+                StartAttackState(PlayerState.SpecialAttacking, specialAttackDuration);
+                return;
             }
         }
 
-        // Check both local and PlayerAttack states
-        bool canMove = !animator.GetBool("IsAttacking") &&
-                      !isRolling &&
-                      !GetComponent<PlayerAttack>().IsChargingHollowPurple();
-
-        if (canMove)
+        // Process movement inputs if in normal state
+        if (currentState == PlayerState.Normal)
         {
-            // Add air control
-            float moveMultiplier = isGrounded ? 1f : 0.7f;
-            rb.velocity = new Vector2(horizontalInput * speed * moveMultiplier, rb.velocity.y);
+            // Roll
+            if (Input.GetButtonDown("Fire3") && isGrounded && rollCooldownTimer <= 0)
+            {
+                StartRoll();
+                return;
+            }
+            // Jump
+            else if (Input.GetButtonDown("Jump") && isGrounded)
+            {
+                Jump();
+            }
         }
-        // Add movement dampening when transitioning states
-        else if (!isRolling)
+    }
+
+    private void StartAttackState(PlayerState attackState, float duration)
+    {
+        currentState = attackState;
+        currentStateTime = duration;
+
+        // Set animation parameters
+        animator.SetBool("IsAttacking", true);
+        switch (attackState)
         {
-            rb.velocity = new Vector2(rb.velocity.x * 0.9f, rb.velocity.y);
+            case PlayerState.LightAttacking:
+                animator.SetInteger("AttackType", 1);
+                break;
+            case PlayerState.HeavyAttacking:
+                animator.SetInteger("AttackType", 2);
+                break;
+            case PlayerState.SpecialAttacking:
+                animator.SetInteger("AttackType", 3);
+                break;
+        }
+
+        // Start attack coroutine
+        StartCoroutine(EndAttackState(duration));
+    }
+
+    private IEnumerator EndAttackState(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (currentState != PlayerState.Normal)
+        {
+            ExitCurrentState();
         }
     }
 
     private void StartRoll()
     {
-        isRolling = true;
-        canRoll = false;
-        rollTimeLeft = rollDuration;
-        rollCooldownTimeLeft = rollCooldown;
-
-        animator.SetBool("IsAttacking", false);
-        animator.ResetTrigger("TriggerCharge");
-        animator.SetInteger("AttackType", 0);
-
+        currentState = PlayerState.Rolling;
+        currentStateTime = rollDuration;
+        rollCooldownTimer = rollCooldown;
         animator.SetTrigger("Roll");
 
         float rollDirection = isFacingRight ? 1 : -1;
@@ -159,31 +201,78 @@ public class PlayerMovement : MonoBehaviour
         Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, true);
     }
 
-    private void UpdateRoll()
+    private void Jump()
     {
-        rollTimeLeft -= Time.deltaTime;
+        rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+        animator.SetTrigger("Jump");
+    }
 
-        float rollDirection = isFacingRight ? 1 : -1;
-        rb.velocity = new Vector2(rollDirection * rollSpeed, rb.velocity.y);
-
-        if (rollTimeLeft <= 0)
+    private void ExitCurrentState()
+    {
+        // If we're exiting the rolling state, re-enable collisions
+        if (currentState == PlayerState.Rolling)
         {
-            EndRoll();
+            Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
+        }
+
+        // Reset all state-specific parameters
+        animator.SetBool("IsAttacking", false);
+        animator.SetInteger("AttackType", 0);
+        currentState = PlayerState.Normal;
+    }
+
+    private void ApplyMovement()
+    {
+        float horizontalInput = Input.GetAxisRaw("Horizontal");
+
+        // Don't allow movement direction changes during attacks
+        if (currentState == PlayerState.LightAttacking ||
+            currentState == PlayerState.HeavyAttacking ||
+            currentState == PlayerState.SpecialAttacking)
+        {
+            // Allow slight movement during attacks
+            rb.velocity = new Vector2(rb.velocity.x * 0.95f, rb.velocity.y);
+            return;
+        }
+
+        // Normal movement
+        if (currentState == PlayerState.Normal)
+        {
+            float moveMultiplier = isGrounded ? 1f : airControlMultiplier;
+            rb.velocity = new Vector2(horizontalInput * speed * moveMultiplier, rb.velocity.y);
+
+            // Handle facing direction
+            if (horizontalInput != 0)
+            {
+                bool shouldFaceRight = horizontalInput > 0;
+                if (isFacingRight != shouldFaceRight)
+                {
+                    Flip();
+                }
+            }
         }
     }
 
-    private void EndRoll()
+    private void UpdateAnimator()
     {
-        isRolling = false;
-        rb.velocity = new Vector2(rb.velocity.x * 0.5f, rb.velocity.y);
+        // Update movement animation
+        float horizontalSpeed = Mathf.Abs(rb.velocity.x);
+        animator.SetFloat("Speed", horizontalSpeed);
 
-        // Re-enable collisions with enemies
-        Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
+        // Update falling animation
+        if (!isGrounded && rb.velocity.y < -0.1f)
+        {
+            animator.SetBool("IsFalling", true);
+        }
+        else
+        {
+            animator.SetBool("IsFalling", false);
+        }
     }
 
     private void Flip()
     {
-        if (isRolling) return;
+        if (currentState != PlayerState.Normal) return;
 
         isFacingRight = !isFacingRight;
         Vector3 newScale = originalScale;
@@ -200,10 +289,9 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // Optional: Handle cases where roll is interrupted
     private void OnDisable()
     {
-        // Make sure collisions are re-enabled if the script is disabled
+        // Make sure collisions are re-enabled when the script is disabled
         Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
     }
 }
