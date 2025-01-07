@@ -8195,9 +8195,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 876865056a212014182fcf86aceae4d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FollowSpeed: 2
-  yOffset: 1
   target: {fileID: 1661194413}
+  followSpeed: 2
+  yOffset: 1
+  defaultSize: 5
+  maxSize: 10
+  padding: 2
+  zoomSpeed: 3
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 512
+  checkRadius: 10
 --- !u!4 &522445887 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2022951361014067008, guid: ec9454adc50028b498edd9a0e32aa208, type: 3}
@@ -24282,7 +24290,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!61 &1603358249
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -28,7 +28,7 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private HollowPurpleConfig hollowPurpleConfig;
 
     [Header("Enemy Reference")]
-    [SerializeField] private Enemy enemyBoss;  // Reference to the boss enemy
+    [SerializeField] public Enemy enemyBoss;  // Reference to the boss enemy
     private bool isHollowPurpleAvailable = false;  // Track if hollow purple can be used
 
     private PlayerMovement playerMovement;
