@@ -17,6 +17,7 @@ public class AttackIconUI : MonoBehaviour
     public AttackIcon basicAttackIcon;
     public AttackIcon specialAttackIcon;
     public AttackIcon hollowPurpleIcon;
+    public AttackIcon ultimateAttackIcon;
 
     // Reference to PlayerAttack script
     private PlayerAttack playerAttack;
@@ -29,6 +30,7 @@ public class AttackIconUI : MonoBehaviour
         InitializeIcon(basicAttackIcon);
         InitializeIcon(specialAttackIcon);
         InitializeIcon(hollowPurpleIcon);
+        InitializeIcon(ultimateAttackIcon);
     }
 
     private void Update()
@@ -38,6 +40,7 @@ public class AttackIconUI : MonoBehaviour
 
         UpdateIconCooldown(basicAttackIcon, playerAttack.IsBasicAttackOnCooldown(), playerAttack.GetBasicAttackCooldown());
         UpdateIconCooldown(specialAttackIcon, playerAttack.IsSpecialAttackOnCooldown(), playerAttack.GetSpecialAttackCooldown());
+        UpdateIconCooldown(ultimateAttackIcon, playerAttack.IsUltimateAttackOnCooldown(), playerAttack.GetUltimateAttackCooldown());
 
         // Update Hollow Purple icon
         if (playerAttack.IsHollowPurpleAvailable())

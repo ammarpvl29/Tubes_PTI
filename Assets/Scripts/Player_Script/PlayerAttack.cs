@@ -18,11 +18,17 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField] private AttackConfig basicAttack = new() { damage = 10, cooldown = 0.5f };
     [SerializeField] private AttackConfig specialAttack = new() { damage = 20, cooldown = 1f };
     [SerializeField] private AttackConfig hollowPurple = new() { damage = 50, cooldown = 3f };
+    [SerializeField] private AttackConfig ultimateAttack = new() { damage = 75, cooldown = 10f }; // High damage, long cooldown
+
 
     [Header("Combat Settings")]
     [SerializeField] private Transform attackPoint;
     [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private float attackRadius = 1f;
+
+    [Header("Ultimate Attack Settings")]
+    [SerializeField] private UltimateAttackConfig ultimateConfig;
+
 
     [Header("Hollow Purple Settings")]
     [SerializeField] private HollowPurpleConfig hollowPurpleConfig;
@@ -77,15 +83,36 @@ public class PlayerAttack : MonoBehaviour
         [HideInInspector] public GameObject purpleInstance;
     }
 
+    [System.Serializable]
+    private class UltimateAttackConfig
+    {
+        public float attackDuration = 1.5f; // Duration of the entire attack animation
+        public float damageDelay = 0.8f; // When during the animation to apply damage
+        public float knockbackForce = 10f; // Force applied to enemies
+        public bool requiresGrounded = true; // Whether attack can only be performed on ground
+        public ParticleSystem ultimateVFX; // Optional VFX for the ultimate
+        public AudioClip chargeSound; // Sound played when starting the attack
+        public AudioClip impactSound; // Sound played on impact
+    }
+
+    // Add reference to the player's health component
+    private Player_Health playerHealth; // Add this line
+    private bool isUsingUltimate = false; // Add this to track ultimate state
+
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
         animator = GetComponent<Animator>();
+        playerHealth = GetComponent<Player_Health>();
 
         audioSource.playOnAwake = false;
         audioSource.volume = 0.5f;
 
         playerMovement = GetComponent<PlayerMovement>();
+    }
+    public bool IsInvulnerableDuringUltimate()
+    {
+        return isUsingUltimate;
     }
 
     private bool CanPerformActions()
@@ -95,6 +122,9 @@ public class PlayerAttack : MonoBehaviour
     }
 
     private void OnDisable() => CleanupHollowPurple();
+    public bool IsUltimateAttackOnCooldown() => ultimateAttack.isOnCooldown;
+    public float GetUltimateAttackCooldown() => ultimateAttack.cooldown;
+
 
     private void Update()
     {
@@ -128,6 +158,10 @@ public class PlayerAttack : MonoBehaviour
                         && !isPlayingChargingAnimation && isHollowPurpleAvailable)
                 {
                     StartCoroutine(ChargeHollowPurple());
+                }
+                if (Input.GetKeyDown(KeyCode.Q) && !ultimateAttack.isOnCooldown && !isAttacking && !isChargingHollowPurple && (!ultimateConfig.requiresGrounded))
+                {
+                    StartCoroutine(PerformUltimateAttack());
                 }
             }
         }
@@ -244,6 +278,71 @@ public class PlayerAttack : MonoBehaviour
         }
 
         isAttacking = false;
+    }
+
+    private IEnumerator PerformUltimateAttack()
+    {
+        isAttacking = true;
+        ultimateAttack.isOnCooldown = true;
+        isUsingUltimate = true;
+
+        // Play charge sound
+        if (ultimateConfig.chargeSound)
+        {
+            audioSource.PlayOneShot(ultimateConfig.chargeSound);
+        }
+
+        // Start VFX if assigned
+        if (ultimateConfig.ultimateVFX != null)
+        {
+            ultimateConfig.ultimateVFX.Play();
+        }
+
+        // Set animation parameters
+        animator.SetBool(IsAttackingHash, true);
+        animator.SetInteger(AttackTypeHash, 4); // Use 4 for ultimate attack
+
+        // Wait for the damage timing
+        yield return new WaitForSeconds(ultimateConfig.damageDelay);
+
+        // Play impact sound
+        if (ultimateConfig.impactSound)
+        {
+            audioSource.PlayOneShot(ultimateConfig.impactSound);
+        }
+
+        // Perform the damage check
+        var hits = Physics2D.OverlapCircleAll(attackPoint.position, attackRadius, enemyLayer);
+        foreach (var hit in hits)
+        {
+            if (hit.TryGetComponent<Enemy>(out var enemy))
+            {
+                enemy.TakeDamage(ultimateAttack.damage);
+
+                // Apply knockback
+                if (hit.TryGetComponent<Rigidbody2D>(out var rb))
+                {
+                    Vector2 knockbackDirection = (hit.transform.position - transform.position).normalized;
+                    rb.AddForce(knockbackDirection * ultimateConfig.knockbackForce, ForceMode2D.Impulse);
+                }
+            }
+        }
+
+        // Wait for the remaining animation
+        yield return new WaitForSeconds(ultimateConfig.attackDuration - ultimateConfig.damageDelay);
+
+        // Reset attack state
+        if (animator != null)
+        {
+            animator.SetBool(IsAttackingHash, false);
+            animator.SetInteger(AttackTypeHash, 0);
+        }
+        isAttacking = false;
+        isUsingUltimate = false;
+
+        // Wait for cooldown
+        yield return new WaitForSeconds(ultimateAttack.cooldown);
+        ultimateAttack.isOnCooldown = false;
     }
 
     private IEnumerator ChargeHollowPurple()
