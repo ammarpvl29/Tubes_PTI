@@ -20,18 +20,24 @@ public class Player_Health : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
+        Debug.Log($"Player taking {damage} damage"); // Debug log
+
         // Check if player is using ultimate attack
         if (playerAttack != null && playerAttack.IsInvulnerableDuringUltimate())
         {
-            return; // Skip damage if player is invulnerable during ultimate
+            Debug.Log("Player is invulnerable - no damage taken"); // Debug log
+            return;
         }
 
         currentHealth -= damage;
-        healthBar.SetHealth((int)currentHealth); // Convert to int for the health bar
+        Debug.Log($"Player health now: {currentHealth}"); // Debug log
+
+        healthBar.SetHealth((int)currentHealth);
         StartCoroutine(DamageAnimation());
 
         if (currentHealth <= 0)
         {
+            Debug.Log("Player died"); // Debug log
             Die();
         }
     }

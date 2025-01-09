@@ -24,9 +24,21 @@ EditorBuildSettings:
     path: Assets/Scenes/intro1.unity
     guid: 42c88b4a67a441e40a1acc9fc9509677
   - enabled: 1
+    path: Assets/Scenes/IntroDialogue_lvl2.unity
+    guid: e700813d59b0a4b4190b1305bf13b278
+  - enabled: 1
     path: Assets/Scenes/Game2.unity
     guid: 304e95de16b88a84d8b541ea576a3a81
   - enabled: 1
     path: Assets/Scenes/intro2.unity
     guid: 9cbcfe4e5386b7546b729ff90c697270
+  - enabled: 1
+    path: Assets/Scenes/IntroDialogue_level3.unity
+    guid: 4089ca449e809614c856d2f98c23e49f
+  - enabled: 1
+    path: Assets/Scenes/Game3.unity
+    guid: ce918f10ec63dd54e99d8947a055f6a0
+  - enabled: 1
+    path: Assets/Scenes/Ending.unity
+    guid: 3222758753d9a7d4588bf31d4f8e9ffb
   m_configObjects: {}

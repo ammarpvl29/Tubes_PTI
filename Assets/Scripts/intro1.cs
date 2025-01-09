@@ -15,6 +15,6 @@ public class intro1 : MonoBehaviour
     IEnumerator WaitAndLoadMainMenu()
     {
         yield return new WaitForSeconds(waitTime);
-        SceneManager.LoadScene("Game1"); // Dari intro ke 1 lanjut level 2
+        SceneManager.LoadScene("IntroDialogue_lvl2"); // Dari intro ke 1 lanjut level 2
     }
 }

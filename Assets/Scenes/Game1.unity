@@ -26385,7 +26385,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50def6872cb51c14dbda57a8168422a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 1000
+  maxHealth: 600
   currentHealth: 0
   healthBar: {fileID: 1323074638}
   bloodEffectPrefab: {fileID: 4009586560179091313, guid: d10669e46babdd947934fb7111daaa2e, type: 3}

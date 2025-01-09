@@ -32,9 +32,15 @@ public class MushyController : MonoBehaviour
     private Player_Health playerHealth;
 
     [Header("Projectile Settings")]
+    public float projectileDamage = 15f;
     public GameObject lavaProjectilePrefab;
     public int projectilesPerAttack = 3;
     public float projectileSpreadAngle = 15f;
+
+    [Header("Audio")]
+    public AudioSource audioSource;        // Reference to the AudioSource component
+    public AudioClip projectileSound;      // Sound effect for projectile launch
+
 
     private void Start()
     {
@@ -42,6 +48,14 @@ public class MushyController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         enemyComponent = GetComponent<Enemy>();
         playerHealth = GameObject.FindGameObjectWithTag("Player").GetComponent<Player_Health>();
+
+        // Get or add AudioSource component
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
         rb.gravityScale = 1f;
         SetNextAttackTime();
     }
@@ -127,7 +141,10 @@ public class MushyController : MonoBehaviour
         isAttacking = true;
         Debug.Log("[Mushy] Starting lava attack sequence");
 
-        // Particle effects remain the same...
+        Vector3 targetPosition = player.position;
+        Vector2 directionToPlayer = (targetPosition - transform.position).normalized;
+
+        // Particle effects for telegraph
         if (chargeParticles != null)
         {
             chargeParticles.Play();
@@ -142,38 +159,33 @@ public class MushyController : MonoBehaviour
 
         if (scatterParticles != null)
         {
-            Vector3 directionToPlayer = (player.position - transform.position).normalized;
             scatterParticles.transform.right = directionToPlayer;
             scatterParticles.Play();
         }
 
-        // Modified projectile spawning logic
-        if (lavaProjectilePrefab != null && player != null)
+        // Play sound effect before spawning projectiles
+        if (audioSource != null && projectileSound != null)
         {
-            Vector3 spawnPosition = transform.position;
+            audioSource.PlayOneShot(projectileSound);
+        }
 
-            // Calculate direct vector to player
-            Vector2 directionToPlayer = (player.position - spawnPosition).normalized;
-
-            // Calculate spread angles for multiple projectiles
+        // Modified projectile spawning logic
+        if (lavaProjectilePrefab != null)
+        {
+            Vector3 spawnPosition = transform.position + (Vector3)directionToPlayer * 1f;
             float angleStep = projectileSpreadAngle / (projectilesPerAttack - 1);
             float startAngle = -projectileSpreadAngle / 2;
 
             for (int i = 0; i < projectilesPerAttack; i++)
             {
-                // Calculate rotation for this projectile
                 float currentAngle = startAngle + (angleStep * i);
                 Vector2 rotatedDirection = RotateVector2(directionToPlayer, currentAngle);
 
-                // Spawn projectile
                 GameObject projectile = Instantiate(lavaProjectilePrefab, spawnPosition, Quaternion.identity);
-
                 LavaProjectile lavaProjectile = projectile.GetComponent<LavaProjectile>();
                 if (lavaProjectile != null)
                 {
-                    lavaProjectile.Initialize(rotatedDirection);
-
-                    // Debug visualization
+                    lavaProjectile.Initialize(rotatedDirection, projectileDamage);
                     Debug.DrawRay(spawnPosition, rotatedDirection * 5f, Color.red, 2f);
                 }
 
