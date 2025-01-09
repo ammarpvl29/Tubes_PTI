@@ -127,21 +127,19 @@ public class MushyController : MonoBehaviour
         isAttacking = true;
         Debug.Log("[Mushy] Starting lava attack sequence");
 
-        // 1. Start charge effect
+        // Particle effects remain the same...
         if (chargeParticles != null)
         {
             chargeParticles.Play();
         }
         yield return new WaitForSeconds(0.5f);
 
-        // 2. Start orbiting lava balls
         if (orbitingParticles != null)
         {
             orbitingParticles.Play();
         }
         yield return new WaitForSeconds(1.5f);
 
-        // 3. Launch scatter attack
         if (scatterParticles != null)
         {
             Vector3 directionToPlayer = (player.position - transform.position).normalized;
@@ -149,13 +147,15 @@ public class MushyController : MonoBehaviour
             scatterParticles.Play();
         }
 
-        // Inside PerformAttackSequence()
+        // Modified projectile spawning logic
         if (lavaProjectilePrefab != null && player != null)
         {
             Vector3 spawnPosition = transform.position;
-            Vector3 directionToPlayer = (player.position - spawnPosition).normalized;
 
-            // Calculate spread angles
+            // Calculate direct vector to player
+            Vector2 directionToPlayer = (player.position - spawnPosition).normalized;
+
+            // Calculate spread angles for multiple projectiles
             float angleStep = projectileSpreadAngle / (projectilesPerAttack - 1);
             float startAngle = -projectileSpreadAngle / 2;
 
@@ -163,21 +163,18 @@ public class MushyController : MonoBehaviour
             {
                 // Calculate rotation for this projectile
                 float currentAngle = startAngle + (angleStep * i);
-                Vector3 rotatedDirection = Quaternion.Euler(0, 0, currentAngle) * directionToPlayer;
+                Vector2 rotatedDirection = RotateVector2(directionToPlayer, currentAngle);
 
-                // Spawn projectile slightly in front of the enemy
-                Vector3 offsetPosition = spawnPosition + (Vector3)rotatedDirection * 0.5f;
-                GameObject projectile = Instantiate(lavaProjectilePrefab, offsetPosition, Quaternion.identity);
+                // Spawn projectile
+                GameObject projectile = Instantiate(lavaProjectilePrefab, spawnPosition, Quaternion.identity);
 
                 LavaProjectile lavaProjectile = projectile.GetComponent<LavaProjectile>();
                 if (lavaProjectile != null)
                 {
                     lavaProjectile.Initialize(rotatedDirection);
-                    Debug.DrawRay(offsetPosition, rotatedDirection * 2f, Color.red, 2f); // Debug visualization
-                }
-                else
-                {
-                    Debug.LogError("LavaProjectile component not found on prefab!");
+
+                    // Debug visualization
+                    Debug.DrawRay(spawnPosition, rotatedDirection * 5f, Color.red, 2f);
                 }
 
                 yield return new WaitForSeconds(0.1f);
@@ -210,6 +207,19 @@ public class MushyController : MonoBehaviour
 
         isAttacking = false;
         SetNextAttackTime();
+    }
+
+    // Add this helper method to your class
+    private Vector2 RotateVector2(Vector2 vector, float degrees)
+    {
+        float radians = degrees * Mathf.Deg2Rad;
+        float sin = Mathf.Sin(radians);
+        float cos = Mathf.Cos(radians);
+
+        return new Vector2(
+            vector.x * cos - vector.y * sin,
+            vector.x * sin + vector.y * cos
+        );
     }
 
     private IEnumerator CleanupLavaProjectiles(GameObject[] projectiles)

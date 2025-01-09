@@ -5,8 +5,8 @@ public class LavaProjectile : MonoBehaviour
     public float speed = 8f;
     public float damage = 15f;
     public float lifetime = 3f;
-
     private Rigidbody2D rb;
+    private Vector2 direction;
 
     private void Awake()
     {
@@ -16,26 +16,30 @@ public class LavaProjectile : MonoBehaviour
             rb = gameObject.AddComponent<Rigidbody2D>();
         }
 
-        // Configure Rigidbody2D
-        rb.gravityScale = 0f;  // No gravity effect
-        rb.freezeRotation = true;  // Don't rotate with physics
+        rb.gravityScale = 0f;
+        rb.freezeRotation = true;
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         rb.interpolation = RigidbodyInterpolation2D.Interpolate;
     }
 
-    public void Initialize(Vector3 direction)
+    public void Initialize(Vector2 newDirection)
     {
-        if (rb == null) return;
+        direction = newDirection.normalized;
 
-        // Set velocity directly
+        // Set initial velocity
         rb.velocity = direction * speed;
 
         // Rotate sprite to face movement direction
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
 
-        // Destroy after lifetime
         Destroy(gameObject, lifetime);
+    }
+
+    private void FixedUpdate()
+    {
+        // Ensure constant velocity
+        rb.velocity = direction * speed;
     }
 
     private void OnTriggerEnter2D(Collider2D other)

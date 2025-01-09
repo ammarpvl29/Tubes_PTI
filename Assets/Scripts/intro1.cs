@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement; // Tambahkan ini
 
-public class introawal : MonoBehaviour
+public class intro1 : MonoBehaviour
 {
     public float waitTime = 21f; // Waktu tunggu sebelum pindah ke MainMenu
 
@@ -15,6 +15,6 @@ public class introawal : MonoBehaviour
     IEnumerator WaitAndLoadMainMenu()
     {
         yield return new WaitForSeconds(waitTime);
-        SceneManager.LoadScene("Game2"); // Dari intro ke 1 lanjut level 2
+        SceneManager.LoadScene("Game1"); // Dari intro ke 1 lanjut level 2
     }
 }
