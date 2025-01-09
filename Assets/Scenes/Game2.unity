@@ -64803,7 +64803,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   goNextLevel: 1
-  levelName: Game1
+  levelName: intro2
   enemyToDefeat: {fileID: 1567777328}
 --- !u!1 &2017665867
 GameObject:
